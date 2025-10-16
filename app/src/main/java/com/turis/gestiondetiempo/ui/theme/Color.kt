@@ -7,6 +7,8 @@ val SurfaceVarLight = Color(0xFFE7EDEB)
 val onSurfaceVarLight = Color(0xFF4A4739)
 val onSurfaceLigth = Color(0xFF171D1D)
 
+val outlineLight = Color(0xFF7D7767)
+
 val SurfaceDark = Color(0xFF0F1515)
 val onSurfaceDark = Color(0xFFDEE4E2)
 val SurfaceVarDark = Color(0xFF171D1D)
