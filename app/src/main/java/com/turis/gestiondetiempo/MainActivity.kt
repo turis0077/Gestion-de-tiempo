@@ -15,9 +15,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                // 🔽 Elige UNA y deja las otras comentadas:
-                //ProfileScreen()
-                //TaskListScreen(uiState = sampleTaskListFull())
                 TaskTemplateScreen(task = sampleTaskDetail())
             }
         }
