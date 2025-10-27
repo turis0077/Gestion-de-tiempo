@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.turis.gestiondetiempo.model.*
 import com.turis.gestiondetiempo.ui.components.DateChip
 import com.turis.gestiondetiempo.ui.components.TagPill
+import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +35,6 @@ fun TaskTemplateScreen(
                 },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = false, onCheckedChange = null)
                         Text(
                             task.title,
                             style = MaterialTheme.typography.titleLarge,
@@ -123,5 +123,5 @@ private fun SubItemRow(item: SubItem) {
 @Preview(showBackground = true)
 @Composable
 private fun TaskTemplatePreview() {
-    MaterialTheme { TaskTemplateScreen(task = sampleTaskDetail()) }
+    GestionDeTiempoTheme { TaskTemplateScreen(task = sampleTaskDetail()) }
 }
