@@ -1,6 +1,6 @@
 //Pantallas de calendario
 
-package com.turis.gestiondetiempo.features
+package com.turis.gestiondetiempo.features.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

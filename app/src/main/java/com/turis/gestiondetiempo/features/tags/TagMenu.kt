@@ -1,4 +1,4 @@
-package com.turis.gestiondetiempo.features
+package com.turis.gestiondetiempo.features.tags
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

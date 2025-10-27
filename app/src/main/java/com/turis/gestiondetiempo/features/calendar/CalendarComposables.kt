@@ -1,6 +1,6 @@
 //Componentes reutilizables para pantallas de calendario
 
-package com.turis.gestiondetiempo.features
+package com.turis.gestiondetiempo.features.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,8 +81,8 @@ fun CalendarCards(
 @Composable
 fun EventChip(
     text: String,
-    container: androidx.compose.ui.graphics.Color,
-    content: androidx.compose.ui.graphics.Color
+    container: Color,
+    content: Color
 ) {
     Box(
         modifier = Modifier
