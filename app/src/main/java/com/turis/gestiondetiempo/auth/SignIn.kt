@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,9 +149,11 @@ fun InputField(field: Field, onValueChange: (String) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun CrearCuentaPreview() {
-    CrearCuentaScreen(
-        state = SignInState(),
-        onEvent = {},
-        onBack = {}
-    )
+    GestionDeTiempoTheme {
+        CrearCuentaScreen(
+            state = SignInState(),
+            onEvent = {},
+            onBack = {}
+        )
+    }
 }
