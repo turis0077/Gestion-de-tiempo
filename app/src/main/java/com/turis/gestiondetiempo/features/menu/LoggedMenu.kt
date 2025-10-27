@@ -1,5 +1,6 @@
-package com.turis.gestiondetiempo.features
+package com.turis.gestiondetiempo.features.menu
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +58,8 @@ import com.turis.gestiondetiempo.ui.tags.TagsViewModel
 import com.turis.gestiondetiempo.ui.tags.resolve
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 import com.turis.gestiondetiempo.R
+import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
+import java.util.Calendar
 
 class LoggedMenu : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,8 +88,8 @@ fun MainLoggedMenu(
     val tagContainerColor = tagColors?.container ?: MaterialTheme.colorScheme.surfaceVariant
     val tagContentColor   = tagColors?.onContainer ?: MaterialTheme.colorScheme.onSurfaceVariant
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val calendar = java.util.Calendar.getInstance()
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
     var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
 
     Scaffold(
@@ -218,11 +222,11 @@ fun MainLoggedMenu(
 
                                     FilledIconButton(
                                         onClick = {
-                                            val year = calendar.get(java.util.Calendar.YEAR)
-                                            val month = calendar.get(java.util.Calendar.MONTH)
-                                            val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                            val year = calendar.get(Calendar.YEAR)
+                                            val month = calendar.get(Calendar.MONTH)
+                                            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-                                            android.app.DatePickerDialog(
+                                            DatePickerDialog(
                                                 context,
                                                 { _, yy, mm, dd ->
                                                     selectedDateText = "%02d/%02d/%04d".format(dd, mm + 1, yy)
