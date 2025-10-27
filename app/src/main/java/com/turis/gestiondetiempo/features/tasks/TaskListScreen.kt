@@ -1,4 +1,4 @@
-package com.turis.gestiondetiempo.ui.tasks
+package com.turis.gestiondetiempo.features.tasks
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,7 +43,8 @@ fun TaskListScreen(
             modifier = Modifier
                 .padding(inner)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .background(MaterialTheme.colorScheme.surface),
             contentPadding = PaddingValues(bottom = 96.dp)
         ) {
             // Header
@@ -58,14 +58,14 @@ fun TaskListScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE6F4F1))
+                            .background(MaterialTheme.colorScheme.surface)
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(22.dp)
                                 .align(Alignment.Center)
                                 .clip(CircleShape)
-                                .background(Color(0xFF0F766E))
+                                .background(MaterialTheme.colorScheme.primary)
                         )
                     }
                     Spacer(Modifier.width(12.dp))

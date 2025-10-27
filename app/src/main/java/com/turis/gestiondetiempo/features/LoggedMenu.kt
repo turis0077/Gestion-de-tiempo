@@ -131,7 +131,7 @@ fun MainLoggedMenu(
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                },
+                }
             )
         }
     ) { innerPadding ->

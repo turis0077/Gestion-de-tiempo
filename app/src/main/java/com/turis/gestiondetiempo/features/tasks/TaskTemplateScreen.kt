@@ -1,4 +1,4 @@
-package com.turis.gestiondetiempo.ui.tasks
+package com.turis.gestiondetiempo.features.tasks
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
