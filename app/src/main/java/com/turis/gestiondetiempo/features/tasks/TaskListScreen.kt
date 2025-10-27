@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.turis.gestiondetiempo.model.*
 import com.turis.gestiondetiempo.ui.components.TagPill
 import com.turis.gestiondetiempo.ui.components.TimeChip
+import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @Composable
 fun TaskListScreen(
@@ -203,17 +204,17 @@ fun InfoIconChip() {
 @Preview(showBackground = true, name = "Vacío")
 @Composable
 private fun PreviewEmpty() {
-    MaterialTheme { TaskListScreen(uiState = sampleTaskListEmpty()) }
+    GestionDeTiempoTheme { TaskListScreen(uiState = sampleTaskListEmpty()) }
 }
 
 @Preview(showBackground = true, name = "Una tarea")
 @Composable
 private fun PreviewOne() {
-    MaterialTheme { TaskListScreen(uiState = sampleTaskListOne()) }
+    GestionDeTiempoTheme { TaskListScreen(uiState = sampleTaskListOne()) }
 }
 
 @Preview(showBackground = true, name = "Lleno")
 @Composable
 private fun PreviewFull() {
-    MaterialTheme { TaskListScreen(uiState = sampleTaskListFull()) }
+    GestionDeTiempoTheme { TaskListScreen(uiState = sampleTaskListFull()) }
 }
