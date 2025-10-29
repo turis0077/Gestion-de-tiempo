@@ -22,4 +22,7 @@ sealed interface LoggedRoutes {
     data class Timer(
         val initialSeconds: Int = 0
     ) : LoggedRoutes
+
+    @Serializable
+    data object Calendar : LoggedRoutes
 }
