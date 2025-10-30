@@ -1,4 +1,4 @@
-package com.turis.gestiondetiempo.nav
+package com.turis.gestiondetiempo.nav.navBar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person

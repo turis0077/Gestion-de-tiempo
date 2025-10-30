@@ -1,4 +1,4 @@
-package com.turis.gestiondetiempo.nav
+package com.turis.gestiondetiempo.nav.routes
 
 import kotlinx.serialization.Serializable
 

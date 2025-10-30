@@ -1,11 +1,11 @@
-package com.turis.gestiondetiempo.nav
+package com.turis.gestiondetiempo.nav.routes
 
 import kotlinx.serialization.Serializable
 
 sealed interface AuthRoutes {
 
     @Serializable
-    data object Start : AuthRoutes
+    data object Welcome : AuthRoutes
 
     @Serializable
     data object LogIn : AuthRoutes
