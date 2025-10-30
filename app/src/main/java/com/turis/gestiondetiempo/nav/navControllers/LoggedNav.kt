@@ -11,8 +11,6 @@ import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 @Composable
 private fun LoggedNav(onLoggedIn: () -> Unit) {
     val nav = rememberNavController()
-    val current by nav.currentBackStackEntryAsState()
-    val route = current?.destination?.route
 
     NavHost(
         navController = nav,
