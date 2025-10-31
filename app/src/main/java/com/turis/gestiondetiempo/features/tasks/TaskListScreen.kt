@@ -145,14 +145,14 @@ fun TaskListScreen(
                                 modifier = Modifier.widthIn(min = 120.dp)
                             ) {
                                 Box {
-                                    FilledIconButton(
+                                    FilledTonalButton(
                                         onClick = { tagExpanded = true },
-                                        colors = IconButtonDefaults.filledIconButtonColors(
+                                        colors = ButtonDefaults.filledTonalButtonColors(
                                             containerColor = tagContainerColor,
                                             contentColor = tagContentColor
                                         ),
                                         shape = RoundedCornerShape(10.dp),
-                                        modifier = Modifier.size(36.dp)
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.outline_bookmark_24),
@@ -160,6 +160,13 @@ fun TaskListScreen(
                                             tint = tagContentColor,
                                             modifier = Modifier.size(18.dp)
                                         )
+                                        tagsViewModel.selectedTag?.let { tag ->
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(
+                                                text = tag.name,
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
                                     }
 
                                     TagsDropdownMenu(
