@@ -16,18 +16,26 @@ import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
-import java.util.Map.entry
 
 @Composable
 private fun LoggedNav(onLoggedIn: () -> Unit) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry)
 
-     val currentRoute: LoggedRoutes = runCatching {
-        backStack?.destination?.let { dest ->
-            nav.currentBackStackEntry?.toRoute<LoggedRoutes>()
-        }
-    }.getOrNull() ?: LoggedRoutes.Menu
+     val currentRoute: LoggedRoutes = backStack?.let { entry ->
+         entry.destination.route?.let { route ->
+             when {
+                 route.contains("Menu") -> LoggedRoutes.Menu
+                 route.contains("TaskList") -> LoggedRoutes.TaskList
+                 route.contains("TaskDetail") -> runCatching { entry.toRoute<LoggedRoutes.TaskDetail>() }.getOrNull() ?: LoggedRoutes.Menu
+                 route.contains("Timer") -> runCatching { entry.toRoute<LoggedRoutes.Timer>() }.getOrNull() ?: LoggedRoutes.Menu
+                 route.contains("Calendar") -> runCatching { entry.toRoute<LoggedRoutes.Calendar>() }.getOrNull() ?: LoggedRoutes.Menu
+                 route.contains("Profile") -> LoggedRoutes.Profile
+                 route.contains("Settings") -> LoggedRoutes.Settings
+                 else -> LoggedRoutes.Menu
+             }
+         }
+    } ?: LoggedRoutes.Menu
 
     val config = remember(currentRoute) { topBarFor(currentRoute, userName = "User1259") }
 
@@ -39,7 +47,7 @@ private fun LoggedNav(onLoggedIn: () -> Unit) {
     }
     val goProfile: () -> Unit = { nav.navigate(LoggedRoutes.Profile) }
     val goConfig: () -> Unit = { nav.navigate(LoggedRoutes.Settings) }
-    val goCalendar: () -> Unit = { nav.navigate(LoggedRoutes.Calendar) }
+    val goCalendar: () -> Unit = { nav.navigate(LoggedRoutes.Calendar()) }
     val goBack: () -> Unit = { nav.popBackStack() }
 
         LoggedNavBar(
