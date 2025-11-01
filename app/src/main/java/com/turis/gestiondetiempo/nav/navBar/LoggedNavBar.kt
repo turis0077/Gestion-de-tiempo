@@ -41,7 +41,7 @@ val TopBarNavigation: Saver<NavBarRouting, String> = Saver(
 
 fun NavBarRouting.navRoute(): Any = when (this) {
     NavBarRouting.PROFILE -> LoggedRoutes.Profile
-    NavBarRouting.CONFIG -> LoggedRoutes.Menu
+    NavBarRouting.CONFIG -> LoggedRoutes.Settings
     NavBarRouting.CALENDAR -> LoggedRoutes.Calendar
     NavBarRouting.HOME -> LoggedRoutes.TaskList
 }
@@ -101,10 +101,12 @@ fun LoggedNavBar(
                 },
                 navigationIcon = {
                     if (config.showBack && onBack != null) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
-                        )
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Volver"
+                            )
+                        }
                     }
                 },
                 actions = {

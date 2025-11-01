@@ -8,10 +8,13 @@
       <SelectionState runConfigName="Preview_Settings_In_Scaffold">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Preview_Menu_In_Scaffold">
+      <SelectionState runConfigName="MainLoggedMenuPreview (1)">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MainLoggedMenuPreview (1)">
+      <SelectionState runConfigName="TaskTemplatePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

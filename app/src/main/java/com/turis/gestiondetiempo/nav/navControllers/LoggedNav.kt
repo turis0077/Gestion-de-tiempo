@@ -1,10 +1,14 @@
 package com.turis.gestiondetiempo.nav.navControllers
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +22,7 @@ import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 
 @Composable
-private fun LoggedNav(onLoggedIn: () -> Unit) {
+fun LoggedNav(onLoggedIn: () -> Unit = {}) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry)
 
@@ -80,11 +84,27 @@ private fun LoggedNav(onLoggedIn: () -> Unit) {
                 }
 
                 composable<LoggedRoutes.Calendar> {
-
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Pantalla de Calendario",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
                 }
 
                 composable<LoggedRoutes.Profile> {
-
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Pantalla de Perfil",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
                 }
 
                 composable<LoggedRoutes.Settings> {
