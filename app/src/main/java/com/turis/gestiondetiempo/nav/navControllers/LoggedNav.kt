@@ -1,21 +1,31 @@
 package com.turis.gestiondetiempo.nav.navControllers
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.turis.gestiondetiempo.account.SettingsScreen
+import com.turis.gestiondetiempo.features.calendar.CalendarDayView
+import com.turis.gestiondetiempo.features.calendar.CalendarMonthView
+import com.turis.gestiondetiempo.features.calendar.CalendarWeekView
 import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
@@ -84,14 +94,40 @@ fun LoggedNav(onLoggedIn: () -> Unit = {}) {
                 }
 
                 composable<LoggedRoutes.Calendar> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Pantalla de Calendario",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
+                    var selectedTabIndex by remember { mutableStateOf(0) }
+
+                    Column {
+                        // Barra de pestañas para seleccionar Mes, Semana o Día
+                        TabRow(
+                            selectedTabIndex = selectedTabIndex,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        ) {
+                            Tab(
+                                selected = selectedTabIndex == 0,
+                                onClick = { selectedTabIndex = 0 }
+                            ) {
+                                Text("Mes", modifier = Modifier.padding(16.dp))
+                            }
+                            Tab(
+                                selected = selectedTabIndex == 1,
+                                onClick = { selectedTabIndex = 1 }
+                            ) {
+                                Text("Semana", modifier = Modifier.padding(16.dp))
+                            }
+                            Tab(
+                                selected = selectedTabIndex == 2,
+                                onClick = { selectedTabIndex = 2 }
+                            ) {
+                                Text("Día", modifier = Modifier.padding(16.dp))
+                            }
+                        }
+
+                        // Mostrar la vista correspondiente según la pestaña seleccionada
+                        when (selectedTabIndex) {
+                            0 -> CalendarMonthView()  // Vista de calendario mensual
+                            1 -> CalendarWeekView()   // Vista de calendario semanal
+                            2 -> CalendarDayView()    // Vista de calendario diario
+                        }
                     }
                 }
 
