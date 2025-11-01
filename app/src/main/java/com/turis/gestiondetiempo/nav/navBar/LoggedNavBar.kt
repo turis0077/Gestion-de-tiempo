@@ -31,8 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.turis.gestiondetiempo.account.SettingsScreen
-import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
-import com.turis.gestiondetiempo.nav.navBar.NavBarRouting
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
@@ -43,7 +41,7 @@ val TopBarNavigation: Saver<NavBarRouting, String> = Saver(
 
 fun NavBarRouting.navRoute(): Any = when (this) {
     NavBarRouting.PROFILE -> LoggedRoutes.Profile
-    NavBarRouting.CONFIG -> LoggedRoutes.Menu
+    NavBarRouting.CONFIG -> LoggedRoutes.Settings
     NavBarRouting.CALENDAR -> LoggedRoutes.Calendar
     NavBarRouting.HOME -> LoggedRoutes.TaskList
 }
@@ -56,6 +54,7 @@ fun LoggedNavBar(
     userName: String = "User1259",
     onBack: (() -> Unit)? = null,
     onHome: (() -> Unit)? = null,
+    onProfile: (() -> Unit)? = null,
     onConfig: (() -> Unit)? = null,
     onCalendar: (() -> Unit)? = null,
     modifier: Modifier = Modifier.background(MaterialTheme.colorScheme.surface),
@@ -66,26 +65,31 @@ fun LoggedNavBar(
             TopAppBar(
                 title = {
                     if (config.showUserHeader && config.titleText == null) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Person,
-                                    contentDescription = "Usuario",
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.size(22.dp)
+                        TextButton(
+                            onClick = { onProfile?.invoke() },
+                            enabled = onProfile != null
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(50))
+                                        .background(MaterialTheme.colorScheme.primaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Person,
+                                        contentDescription = "Usuario",
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "  Hola, $userName",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                             }
-                            Text(
-                                text = "  Hola, $userName",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleMedium
-                            )
                         }
                     } else {
                         Text(
@@ -97,10 +101,12 @@ fun LoggedNavBar(
                 },
                 navigationIcon = {
                     if (config.showBack && onBack != null) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
-                        )
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Volver"
+                            )
+                        }
                     }
                 },
                 actions = {
