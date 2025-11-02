@@ -28,7 +28,7 @@ private fun AuthNav(onLoggedIn: () -> Unit) {
         composable<AuthRoutes.SignIn> {
             CrearCuentaScreen(
                 state = SignInState(),
-                onEvent = { event ->},
+                onEvent = { event -> },
                 onBack = { nav.popBackStack() }
             )
         }

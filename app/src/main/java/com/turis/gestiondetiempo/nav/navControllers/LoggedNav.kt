@@ -98,43 +98,43 @@ fun LoggedNav(onLoggedIn: () -> Unit = {}) {
 
                 }
 
-                composable<LoggedRoutes.Calendar> {
-                    var selectedTabIndex by remember { mutableStateOf(0) }
+        composable<LoggedRoutes.Calendar> {
+            var selectedTabIndex by remember { mutableStateOf(0) }
 
-                    Column {
-                        // Barra de pestañas para seleccionar Mes, Semana o Día
-                        TabRow(
-                            selectedTabIndex = selectedTabIndex,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        ) {
-                            Tab(
-                                selected = selectedTabIndex == 0,
-                                onClick = { selectedTabIndex = 0 }
-                            ) {
-                                Text("Mes", modifier = Modifier.padding(16.dp))
-                            }
-                            Tab(
-                                selected = selectedTabIndex == 1,
-                                onClick = { selectedTabIndex = 1 }
-                            ) {
-                                Text("Semana", modifier = Modifier.padding(16.dp))
-                            }
-                            Tab(
-                                selected = selectedTabIndex == 2,
-                                onClick = { selectedTabIndex = 2 }
-                            ) {
-                                Text("Día", modifier = Modifier.padding(16.dp))
-                            }
-                        }
-
-                        // Mostrar la vista correspondiente según la pestaña seleccionada
-                        when (selectedTabIndex) {
-                            0 -> CalendarMonthView()  // Vista de calendario mensual
-                            1 -> CalendarWeekView()   // Vista de calendario semanal
-                            2 -> CalendarDayView()    // Vista de calendario diario
-                        }
+            Column {
+                // Barra de pestañas
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                ) {
+                    Tab(
+                        selected = selectedTabIndex == 0,
+                        onClick = { selectedTabIndex = 0 }
+                    ) {
+                        Text("Mes", modifier = Modifier.padding(16.dp))
+                    }
+                    Tab(
+                        selected = selectedTabIndex == 1,
+                        onClick = { selectedTabIndex = 1 }
+                    ) {
+                        Text("Semana", modifier = Modifier.padding(16.dp))
+                    }
+                    Tab(
+                        selected = selectedTabIndex == 2,
+                        onClick = { selectedTabIndex = 2 }
+                    ) {
+                        Text("Día", modifier = Modifier.padding(16.dp))
                     }
                 }
+
+                //
+                when (selectedTabIndex) {
+                    0 -> CalendarMonthView()
+                    1 -> CalendarWeekView()
+                    2 -> CalendarDayView()
+                }
+            }
+        }
 
                 composable<LoggedRoutes.Profile> {
                     Box(
