@@ -27,7 +27,10 @@ import com.turis.gestiondetiempo.features.calendar.CalendarDayView
 import com.turis.gestiondetiempo.features.calendar.CalendarMonthView
 import com.turis.gestiondetiempo.features.calendar.CalendarWeekView
 import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
+import com.turis.gestiondetiempo.features.profile.ProfileScreen
 import com.turis.gestiondetiempo.features.tasks.TaskListScreen
+import com.turis.gestiondetiempo.features.tasks.TaskTemplateScreen
+import com.turis.gestiondetiempo.model.sampleTaskDetail
 import com.turis.gestiondetiempo.model.sampleTaskListFull
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
@@ -92,6 +95,10 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
                 }
 
                 composable<LoggedRoutes.TaskDetail> {
+                    TaskTemplateScreen(
+                        task = sampleTaskDetail(),
+                        onAddSubItem = { /* TODO: Implementar agregar subtarea */ }
+                    )
                 }
 
                 composable<LoggedRoutes.Timer> {
@@ -136,15 +143,9 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
         }
 
                 composable<LoggedRoutes.Profile> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Pantalla de Perfil",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
+                    ProfileScreen(
+                        onBack = goBack
+                    )
                 }
 
                 composable<LoggedRoutes.Settings> {

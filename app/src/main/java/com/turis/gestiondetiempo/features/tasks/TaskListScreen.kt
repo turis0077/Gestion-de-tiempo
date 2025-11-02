@@ -14,22 +14,32 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.turis.gestiondetiempo.R
+import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
 import com.turis.gestiondetiempo.model.*
-import com.turis.gestiondetiempo.ui.components.TagPill
 import com.turis.gestiondetiempo.ui.components.TimeChip
+import com.turis.gestiondetiempo.ui.tags.TagsViewModel
+import com.turis.gestiondetiempo.ui.tags.resolve
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @Composable
 fun TaskListScreen(
     uiState: List<TaskSection>,
-    onAdd: () -> Unit = {}
+    onAdd: () -> Unit = {},
+    tagsViewModel: TagsViewModel = viewModel()
 ) {
     Scaffold(
         floatingActionButton = {
@@ -99,6 +109,12 @@ fun TaskListScreen(
                 }
 
                 itemsIndexed(section.items, key = { _, it -> it.id }) { index, task ->
+                    var tagExpanded by remember { mutableStateOf(false) }
+
+                    val tagColors = tagsViewModel.selectedTag?.color?.resolve()
+                    val tagContainerColor = tagColors?.container ?: MaterialTheme.colorScheme.surfaceVariant
+                    val tagContentColor = tagColors?.onContainer ?: MaterialTheme.colorScheme.onSurfaceVariant
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -128,11 +144,40 @@ fun TaskListScreen(
                                 horizontalAlignment = Alignment.End,
                                 modifier = Modifier.widthIn(min = 120.dp)
                             ) {
-                                when (task.tag) {
-                                    TaskTag.Estudios -> TagPill(TaskTag.Estudios)
-                                    TaskTag.Personal -> TagPill(TaskTag.Personal)
-                                    TaskTag.Hobbies -> TagPill(TaskTag.Hobbies)
-                                    else -> {}
+                                Box {
+                                    FilledTonalButton(
+                                        onClick = { tagExpanded = true },
+                                        colors = ButtonDefaults.filledTonalButtonColors(
+                                            containerColor = tagContainerColor,
+                                            contentColor = tagContentColor
+                                        ),
+                                        shape = RoundedCornerShape(10.dp),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.outline_bookmark_24),
+                                            contentDescription = "Etiqueta",
+                                            tint = tagContentColor,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        tagsViewModel.selectedTag?.let { tag ->
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(
+                                                text = tag.name,
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                    }
+
+                                    TagsDropdownMenu(
+                                        expanded = tagExpanded,
+                                        onDismiss = { tagExpanded = false },
+                                        tags = tagsViewModel.tags,
+                                        onSelect = { tagsViewModel.select(it) },
+                                        onEdit = { tagsViewModel.upsert(it) },
+                                        onCreateNew = { tagsViewModel.createNewTag("Nueva") },
+                                        modifier = Modifier.width(260.dp)
+                                    )
                                 }
                                 Spacer(Modifier.height(6.dp))
                                 Row(
