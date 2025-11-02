@@ -64,7 +64,7 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
 import com.turis.gestiondetiempo.features.tasks.TaskListScreen
-import com.turis.gestiondetiempo.model.sampleTaskListFull
+import com.turis.gestiondetiempo.model.sampleTaskListOne
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.TopBarConfig
 import androidx.compose.ui.input.pointer.pointerInput
@@ -89,6 +89,10 @@ fun MainLoggedMenu(
     modifier: Modifier = Modifier
         .background(MaterialTheme.colorScheme.surface)
         .fillMaxSize(),
+    onTaskClick: (String, String) -> Unit = { _, _ -> },
+    onProfileClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onCalendarClick: () -> Unit = {},
     tagsViewModel: TagsViewModel = viewModel(),
 
 ) {
@@ -296,8 +300,12 @@ fun MainLoggedMenu(
             containerColor = MaterialTheme.colorScheme.surface
         ) {
             TaskListScreen(
-                uiState = sampleTaskListFull(),
-                onAdd = { /* TODO: Implementar navegación a crear tarea */ }
+                uiState = sampleTaskListOne(),
+                onAdd = { /* TODO: Implementar navegación a crear tarea */ },
+                onTaskClick = onTaskClick,
+                onProfileClick = onProfileClick,
+                onSettingsClick = onSettingsClick,
+                onCalendarClick = onCalendarClick
             )
         }
     }

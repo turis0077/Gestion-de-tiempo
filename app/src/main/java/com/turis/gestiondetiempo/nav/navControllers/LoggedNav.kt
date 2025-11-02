@@ -31,7 +31,7 @@ import com.turis.gestiondetiempo.features.profile.ProfileScreen
 import com.turis.gestiondetiempo.features.tasks.TaskListScreen
 import com.turis.gestiondetiempo.features.tasks.TaskTemplateScreen
 import com.turis.gestiondetiempo.model.sampleTaskDetail
-import com.turis.gestiondetiempo.model.sampleTaskListFull
+import com.turis.gestiondetiempo.model.sampleTaskListOne
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
@@ -83,21 +83,35 @@ fun LoggedNav(onLoggedIn: () -> Unit = {}) {
             ) {
                 composable<LoggedRoutes.Menu> {
                     MainLoggedMenu(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onTaskClick = { taskId, taskTitle ->
+                            nav.navigate(LoggedRoutes.TaskDetail(taskId = taskId, taskTitle = taskTitle))
+                        },
+                        onProfileClick = goProfile,
+                        onSettingsClick = goConfig,
+                        onCalendarClick = goCalendar
                     )
                 }
 
                 composable<LoggedRoutes.TaskList> {
                     TaskListScreen(
-                        uiState = sampleTaskListFull(),
-                        onAdd = { /* TODO: Implementar navegación a crear tarea */ }
+                        uiState = sampleTaskListOne(),
+                        onAdd = { /* TODO: Implementar navegación a crear tarea */ },
+                        onTaskClick = { taskId, taskTitle ->
+                            nav.navigate(LoggedRoutes.TaskDetail(taskId = taskId, taskTitle = taskTitle))
+                        },
+                        onProfileClick = goProfile,
+                        onSettingsClick = goConfig,
+                        onCalendarClick = goCalendar
                     )
                 }
 
                 composable<LoggedRoutes.TaskDetail> {
                     TaskTemplateScreen(
                         task = sampleTaskDetail(),
-                        onAddSubItem = { /* TODO: Implementar agregar subtarea */ }
+                        onAddSubItem = { /* TODO: Implementar agregar subtarea */ },
+                        onBack = goBack,
+                        onProfileClick = goProfile
                     )
                 }
 

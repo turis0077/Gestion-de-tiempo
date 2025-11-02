@@ -2,6 +2,7 @@ package com.turis.gestiondetiempo.features.tasks
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -39,6 +40,10 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 fun TaskListScreen(
     uiState: List<TaskSection>,
     onAdd: () -> Unit = {},
+    onTaskClick: (String, String) -> Unit = { _, _ -> },
+    onProfileClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onCalendarClick: () -> Unit = {},
     tagsViewModel: TagsViewModel = viewModel()
 ) {
     Scaffold(
@@ -65,28 +70,36 @@ fun TaskListScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onProfileClick() }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
-                                .align(Alignment.Center)
+                                .size(40.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(MaterialTheme.colorScheme.surface)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .align(Alignment.Center)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Hola, User1259",
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        "Hola, User1259",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = {}) { Icon(Icons.Outlined.Settings, null) }
-                    IconButton(onClick = {}) { Icon(Icons.Outlined.CalendarMonth, null) }
+                    IconButton(onClick = onSettingsClick) { Icon(Icons.Outlined.Settings, null) }
+                    IconButton(onClick = onCalendarClick) { Icon(Icons.Outlined.CalendarMonth, null) }
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -185,7 +198,7 @@ fun TaskListScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     ProgressChip()
-                                    InfoIconChip()
+                                    InfoIconChip(onClick = { onTaskClick(task.id, task.title) })
                                     TimeChip(task.chips.lastOrNull()?.text ?: "10:00")
                                 }
                             }
@@ -227,12 +240,13 @@ fun ProgressChip() {
 }
 
 @Composable
-fun InfoIconChip() {
+fun InfoIconChip(onClick: () -> Unit = {}) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.dp
+        tonalElevation = 0.dp,
+        onClick = onClick
     ) {
         Icon(
             imageVector = Icons.Outlined.Info,

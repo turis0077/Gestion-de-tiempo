@@ -1,7 +1,10 @@
 package com.turis.gestiondetiempo.features.tasks
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -37,6 +41,8 @@ import java.util.Calendar
 fun TaskTemplateScreen(
     task: Task,
     onAddSubItem: () -> Unit = {},
+    onBack: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     tagsViewModel: TagsViewModel = viewModel()
 ) {
     var tagExpanded by remember { mutableStateOf(false) }
@@ -53,7 +59,7 @@ fun TaskTemplateScreen(
             // Fila superior con Back y checkbox a la izquierda del título
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Atrás")
                     }
                 },
@@ -64,6 +70,24 @@ fun TaskTemplateScreen(
                             style = MaterialTheme.typography.titleLarge,
                             fontSize = 22.sp
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onProfileClick) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .align(Alignment.Center)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
+                        }
                     }
                 }
             )
