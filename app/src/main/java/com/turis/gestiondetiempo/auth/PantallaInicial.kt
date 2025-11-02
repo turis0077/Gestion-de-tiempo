@@ -89,17 +89,16 @@ fun PantallaInicial(
                 // Botón: Crear cuenta
                 BotonLogin(
                     texto = "Crear cuenta",
-                    fondo = colors.primaryContainer,
-                    contenido = colors.onPrimaryContainer,
+                    fondo = colors.secondaryContainer.copy(alpha = 0.5f),
+                    contenido = colors.onSecondaryContainer,
                     onClick = onCrearCuenta
                 )
 
                 // Botón: Iniciar sesión
                 BotonLogin(
                     texto = "Iniciar sesión",
-                    fondo = colors.surface,
-                    contenido = colors.onSurface,
-                    borde = BorderStroke(1.dp, colors.outline),
+                    fondo = colors.primaryContainer.copy(alpha = 0.5f),
+                    contenido = colors.onPrimaryContainer,
                     onClick = onIniciarSesion
                 )
             }
