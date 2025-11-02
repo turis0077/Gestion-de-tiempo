@@ -48,9 +48,7 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
-    onHome: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     var dark by remember { mutableStateOf(false) }
     var language by remember { mutableStateOf("Español") }
@@ -65,39 +63,6 @@ fun SettingsScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Configuración",
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(top = 10.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    Row {
-                        IconButton(onClick = onHome) {
-                            Icon(
-                                imageVector = Icons.Outlined.Home,
-                                contentDescription = "Inicio",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowBack,
-                                contentDescription = "Atrás",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-            }
 
             item { SectionChip("Personalización") }
 

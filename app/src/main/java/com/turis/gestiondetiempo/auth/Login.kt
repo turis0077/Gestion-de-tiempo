@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +53,14 @@ fun LoginScreen() {
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = "regresar",
+                            tint = colors.primary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = colors.surface
+                    containerColor = colors.primaryContainer.copy(alpha = 0.5f),
+                    titleContentColor = colors.primary
                 )
             )
         },
@@ -67,7 +70,8 @@ fun LoginScreen() {
             modifier = Modifier
                 .padding(inner)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .background(colors.surface),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(24.dp))
@@ -186,5 +190,7 @@ private fun SocialChip(label: String) {
 
 @Preview(showBackground = true)
 @Composable fun PreviewLoginScreen() {
-    LoginScreen()
+    GestionDeTiempoTheme {
+        LoginScreen()
+    }
 }

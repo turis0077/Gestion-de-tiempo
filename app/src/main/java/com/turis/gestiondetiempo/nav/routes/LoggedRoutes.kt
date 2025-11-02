@@ -2,6 +2,9 @@ package com.turis.gestiondetiempo.nav.routes
 
 import kotlinx.serialization.Serializable
 
+@Serializable
+enum class CalendarMode { DAY, WEEK, MONTH }
+
 sealed interface LoggedRoutes {
 
     @Serializable
@@ -15,7 +18,8 @@ sealed interface LoggedRoutes {
 
     @Serializable
     data class TaskDetail(
-        val taskId: Long
+        val taskId: String,
+        val taskTitle: String? = null
     ) : LoggedRoutes
 
     @Serializable
@@ -24,5 +28,12 @@ sealed interface LoggedRoutes {
     ) : LoggedRoutes
 
     @Serializable
-    data object Calendar : LoggedRoutes
+    data class Calendar(
+        val mode: CalendarMode = CalendarMode.MONTH,
+        val isoDate: String? = null
+    ) : LoggedRoutes
+
+    @Serializable
+    data object Settings : LoggedRoutes
+
 }
