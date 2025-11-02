@@ -102,7 +102,6 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
             var selectedTabIndex by remember { mutableStateOf(0) }
 
             Column {
-                // Barra de pestañas
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     modifier = Modifier.padding(bottom = 8.dp),
