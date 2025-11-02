@@ -34,7 +34,7 @@ import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 
 @Composable
-fun LoggedNav(onLoggedIn: () -> Unit = {}) {
+fun LoggedNav(onLogout: () -> Unit = {}) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry)
 
@@ -151,6 +151,7 @@ fun LoggedNav(onLoggedIn: () -> Unit = {}) {
                 composable<LoggedRoutes.Settings> {
                     SettingsScreen(
                         modifier = Modifier.fillMaxSize(),
+                        onLogout = onLogout
                     )
                 }
             }
