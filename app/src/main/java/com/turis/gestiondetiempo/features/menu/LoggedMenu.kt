@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,11 +33,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +63,11 @@ import com.turis.gestiondetiempo.ui.tags.resolve
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
+import com.turis.gestiondetiempo.features.tasks.TaskListScreen
+import com.turis.gestiondetiempo.model.sampleTaskListFull
+import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
+import com.turis.gestiondetiempo.nav.navBar.TopBarConfig
+import androidx.compose.ui.input.pointer.pointerInput
 import java.util.Calendar
 
 class LoggedMenu : ComponentActivity() {
@@ -73,10 +82,13 @@ class LoggedMenu : ComponentActivity() {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLoggedMenu(
-    modifier: Modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+    modifier: Modifier = Modifier
+        .background(MaterialTheme.colorScheme.surface)
+        .fillMaxSize(),
     tagsViewModel: TagsViewModel = viewModel(),
 
 ) {
@@ -92,224 +104,202 @@ fun MainLoggedMenu(
     val calendar = Calendar.getInstance()
     var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = "Usuario",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                        Text(
-                            text = "  Hola, User1259",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Medium
-                            )
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: Configuración */ }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Configuración",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    IconButton(onClick = { /* TODO: Calendario */ }) {
-                        Icon(
-                            imageVector = Icons.Outlined.DateRange,
-                            contentDescription = "Calendario",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
+    // Estado para el ModalBottomSheet
+    var showTaskList by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(vertical = 15.dp, horizontal = 30.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = 80.dp, bottom = 15.dp)
+                .padding(25.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(
+            Text(
+                text = "¡Hora de Trabajar!",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 80.dp, bottom = 15.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(25.dp)
+            )
+
+            ElevatedCard(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
-                Text(
-                    text = "¡Hora de Trabajar!",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(25.dp)
-                )
-
-                ElevatedCard(
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
-                    colors = CardDefaults.elevatedCardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
+                    TextField(
+                        placeholder = { Text("Describe tu primera tarea") },
+                        value = text,
+                        onValueChange = { text = it },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextField(
-                            placeholder = { Text("Describe tu primera tarea") },
-                            value = text,
-                            onValueChange = { text = it },
-                            modifier = Modifier
-                                .weight(1f),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedIndicatorColor = MaterialTheme.colorScheme.surface,
-                                unfocusedIndicatorColor = MaterialTheme.colorScheme.surface
-                            ),
+                            .weight(1f),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.surface,
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.surface
+                        ),
 
-                            trailingIcon = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box {
-                                        FilledIconButton(
-                                            onClick = { tagExpanded = true },
-                                            colors = IconButtonDefaults.filledIconButtonColors(
-                                                containerColor = tagContainerColor,
-                                                contentColor = tagContentColor
-                                            ),
-                                            shape = RoundedCornerShape(10.dp)
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.outline_bookmark_24),
-                                                contentDescription = "Etiqueta",
-                                                tint = tagContentColor
-                                            )
-                                        }
-
-                                        TagsDropdownMenu(
-                                            expanded = tagExpanded,
-                                            onDismiss = { tagExpanded = false },
-                                            tags = tagsViewModel.tags,
-                                            onSelect = { tagsViewModel.select(it) },
-                                            onEdit = { tagsViewModel.upsert(it) },
-                                            onCreateNew = { tagsViewModel.createNewTag("Nueva") },
-                                            modifier = Modifier.width(260.dp)
-                                        )
-                                    }
-
+                        trailingIcon = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box {
                                     FilledIconButton(
-                                        onClick = {
-                                            val year = calendar.get(Calendar.YEAR)
-                                            val month = calendar.get(Calendar.MONTH)
-                                            val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-                                            DatePickerDialog(
-                                                context,
-                                                { _, yy, mm, dd ->
-                                                    selectedDateText = "%02d/%02d/%04d".format(dd, mm + 1, yy)
-                                                },
-                                                year, month, day
-                                            ).show()
-                                        },
+                                        onClick = { tagExpanded = true },
                                         colors = IconButtonDefaults.filledIconButtonColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            containerColor = tagContainerColor,
                                             contentColor = tagContentColor
                                         ),
-                                        modifier = Modifier.padding(start = 6.dp),
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Outlined.DateRange,
-                                            contentDescription = "Fecha limite",
+                                            painter = painterResource(id = R.drawable.outline_bookmark_24),
+                                            contentDescription = "Etiqueta",
                                             tint = tagContentColor
                                         )
                                     }
+
+                                    TagsDropdownMenu(
+                                        expanded = tagExpanded,
+                                        onDismiss = { tagExpanded = false },
+                                        tags = tagsViewModel.tags,
+                                        onSelect = { tagsViewModel.select(it) },
+                                        onEdit = { tagsViewModel.upsert(it) },
+                                        onCreateNew = { tagsViewModel.createNewTag("Nueva") },
+                                        modifier = Modifier.width(260.dp)
+                                    )
+                                }
+
+                                FilledIconButton(
+                                    onClick = {
+                                        val year = calendar.get(Calendar.YEAR)
+                                        val month = calendar.get(Calendar.MONTH)
+                                        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+                                        DatePickerDialog(
+                                            context,
+                                            { _, yy, mm, dd ->
+                                                selectedDateText = "%02d/%02d/%04d".format(dd, mm + 1, yy)
+                                            },
+                                            year, month, day
+                                        ).show()
+                                    },
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = tagContentColor
+                                    ),
+                                    modifier = Modifier.padding(start = 6.dp),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.DateRange,
+                                        contentDescription = "Fecha limite",
+                                        tint = tagContentColor
+                                    )
                                 }
                             }
-                        )
-                    }
-                }
-
-                selectedDateText?.let { dateText ->
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Fecha límite: $dateText",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                        }
+                    )
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 20.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+            selectedDateText?.let { dateText ->
+                Row(
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "desliza para ver tu lista de tareas",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Light,
-                            shadow = Shadow(
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                offset = Offset(0f, 2f),
-                                blurRadius = 3f
-                            )
-                        ),
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Image(
-                        painter = painterResource(R.drawable.deslizador),
-                        contentDescription = "Deslizador",
-                        modifier = Modifier.size(100.dp)
+                        text = "Fecha límite: $dateText",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
         }
 
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showTaskList = true }
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures { change, dragAmount ->
+                            // Si el usuario desliza hacia arriba (dragAmount negativo)
+                            if (dragAmount < -50f) {
+                                showTaskList = true
+                            }
+                        }
+                    }
+            ) {
+                Text(
+                    text = "desliza para ver tu lista de tareas",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Light,
+                        shadow = Shadow(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            offset = Offset(0f, 2f),
+                            blurRadius = 3f
+                        )
+                    ),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                Image(
+                    painter = painterResource(R.drawable.deslizador),
+                    contentDescription = "Deslizador",
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+        }
+    }
+
+    // ModalBottomSheet para mostrar la lista de tareas
+    if (showTaskList) {
+        ModalBottomSheet(
+            onDismissRequest = { showTaskList = false },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            TaskListScreen(
+                uiState = sampleTaskListFull(),
+                onAdd = { /* TODO: Implementar navegación a crear tarea */ }
+            )
+        }
     }
 }
 
@@ -317,6 +307,20 @@ fun MainLoggedMenu(
 @Composable
 fun MainLoggedMenuPreview() {
     GestionDeTiempoTheme {
-        MainLoggedMenu()
+        LoggedNavBar(
+            config = TopBarConfig(
+                titleText = null,
+                showUserHeader = true,
+                showBack = false,
+                showHome = false,
+                showConfig = true,
+                showCalendar = true
+            ),
+            onProfile = {},
+            onConfig = {},
+            onCalendar = {}
+        ) {
+            MainLoggedMenu()
+        }
     }
 }
