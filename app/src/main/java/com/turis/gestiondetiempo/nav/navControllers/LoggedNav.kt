@@ -27,6 +27,8 @@ import com.turis.gestiondetiempo.features.calendar.CalendarDayView
 import com.turis.gestiondetiempo.features.calendar.CalendarMonthView
 import com.turis.gestiondetiempo.features.calendar.CalendarWeekView
 import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
+import com.turis.gestiondetiempo.features.tasks.TaskListScreen
+import com.turis.gestiondetiempo.model.sampleTaskListFull
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
@@ -83,7 +85,10 @@ fun LoggedNav(onLoggedIn: () -> Unit = {}) {
                 }
 
                 composable<LoggedRoutes.TaskList> {
-
+                    TaskListScreen(
+                        uiState = sampleTaskListFull(),
+                        onAdd = { /* TODO: Implementar navegación a crear tarea */ }
+                    )
                 }
 
                 composable<LoggedRoutes.TaskDetail> {
