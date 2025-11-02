@@ -230,7 +230,7 @@ fun MainLoggedMenu(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 20.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.BottomCenter
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
