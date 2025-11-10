@@ -1,5 +1,6 @@
 package com.turis.gestiondetiempo.auth
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,10 +38,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onBack: () -> Unit = {},
+    onLogin: () -> Unit = {}
+) {
     val colors = MaterialTheme.colorScheme
 
     Scaffold(
@@ -48,15 +53,17 @@ fun LoginScreen() {
             CenterAlignedTopAppBar(
                 title = { Text("Inicio de sesión") },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = "regresar",
+                            tint = colors.primary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = colors.surface
+                    containerColor = colors.primaryContainer.copy(alpha = 0.5f),
+                    titleContentColor = colors.primary
                 )
             )
         },
@@ -66,7 +73,8 @@ fun LoginScreen() {
             modifier = Modifier
                 .padding(inner)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .background(colors.surface),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(24.dp))
@@ -135,7 +143,7 @@ fun LoginScreen() {
 
             // Botón principal
             Button(
-                onClick = {},
+                onClick = onLogin,
                 shape = RoundedCornerShape(14.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -185,5 +193,7 @@ private fun SocialChip(label: String) {
 
 @Preview(showBackground = true)
 @Composable fun PreviewLoginScreen() {
-    LoginScreen()
+    GestionDeTiempoTheme {
+        LoginScreen()
+    }
 }
