@@ -42,7 +42,10 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onBack: () -> Unit = {},
+    onLogin: () -> Unit = {}
+) {
     val colors = MaterialTheme.colorScheme
 
     Scaffold(
@@ -50,7 +53,7 @@ fun LoginScreen() {
             CenterAlignedTopAppBar(
                 title = { Text("Inicio de sesión") },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "regresar",
@@ -140,7 +143,7 @@ fun LoginScreen() {
 
             // Botón principal
             Button(
-                onClick = {},
+                onClick = onLogin,
                 shape = RoundedCornerShape(14.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 colors = ButtonDefaults.buttonColors(

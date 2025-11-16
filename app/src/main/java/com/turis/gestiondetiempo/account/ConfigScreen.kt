@@ -48,7 +48,8 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit = {}
 ) {
     var dark by remember { mutableStateOf(false) }
     var language by remember { mutableStateOf("Español") }
@@ -207,7 +208,7 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Button(
-                        onClick = { /* logout */ },
+                        onClick = onLogout,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.buttonColors(

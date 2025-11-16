@@ -6,11 +6,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.turis.gestiondetiempo.auth.CrearCuentaScreen
 import com.turis.gestiondetiempo.auth.LoginScreen
+import com.turis.gestiondetiempo.auth.PantallaInicial
 import com.turis.gestiondetiempo.auth.SignInState
 import com.turis.gestiondetiempo.nav.routes.AuthRoutes
 
 @Composable
-private fun AuthNav(onLoggedIn: () -> Unit) {
+fun AuthNav(onLoggedIn: () -> Unit) {
     val nav = rememberNavController()
 
     NavHost(
@@ -18,11 +19,21 @@ private fun AuthNav(onLoggedIn: () -> Unit) {
         startDestination = AuthRoutes.Welcome
     ) {
         composable<AuthRoutes.Welcome> {
-
+            PantallaInicial(
+                onCrearCuenta = {
+                    nav.navigate(AuthRoutes.SignIn)
+                },
+                onIniciarSesion = {
+                    nav.navigate(AuthRoutes.LogIn)
+                }
+            )
         }
 
         composable<AuthRoutes.LogIn> {
-            LoginScreen()
+            LoginScreen(
+                onBack = { nav.popBackStack() },
+                onLogin = onLoggedIn
+            )
         }
 
         composable<AuthRoutes.SignIn> {

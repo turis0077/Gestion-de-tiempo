@@ -3,8 +3,7 @@ package com.turis.gestiondetiempo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
-import com.turis.gestiondetiempo.nav.navControllers.LoggedNav
+import com.turis.gestiondetiempo.nav.navControllers.NavigationController
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 class MainActivity : ComponentActivity() {
@@ -12,7 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GestionDeTiempoTheme {
-                LoggedNav()
+                NavigationController()
             }
         }
     }
