@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,8 +31,8 @@ import com.turis.gestiondetiempo.features.menu.MainLoggedMenu
 import com.turis.gestiondetiempo.features.profile.ProfileScreen
 import com.turis.gestiondetiempo.features.tasks.TaskListScreen
 import com.turis.gestiondetiempo.features.tasks.TaskTemplateScreen
-import com.turis.gestiondetiempo.model.sampleTaskDetail
-import com.turis.gestiondetiempo.model.sampleTaskListFull
+import com.turis.gestiondetiempo.model.organizarTareasPorFecha
+import com.turis.gestiondetiempo.ui.AppViewModel
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
@@ -39,7 +40,13 @@ import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 @Composable
 fun LoggedNav(onLogout: () -> Unit = {}) {
     val nav = rememberNavController()
+    val appViewModel: AppViewModel = viewModel()
     val backStack by nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry)
+
+    // Observar el username y foto del ViewModel
+    val username by appViewModel.username.collectAsState()
+    val profilePhotoUri by appViewModel.profilePhotoUri.collectAsState()
+    val tasks by appViewModel.tasks.collectAsState()
 
      val currentRoute: LoggedRoutes = backStack?.let { entry ->
          entry.destination.route?.let { route ->
@@ -56,7 +63,7 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
          }
     } ?: LoggedRoutes.Menu
 
-    val config = remember(currentRoute) { topBarFor(currentRoute, userName = "User1259") }
+    val config = remember(currentRoute, username) { topBarFor(currentRoute, userName = username) }
 
     val goHome: () -> Unit = {
         nav.navigate(LoggedRoutes.Menu) {
@@ -71,6 +78,8 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
 
         LoggedNavBar(
             config = config,
+            userName = username,
+            profilePhotoUri = profilePhotoUri,
             onBack = if (config.showBack) goBack else null,
             onHome = if (config.showHome) goHome else null,
             onProfile = if (config.showUserHeader) goProfile else null,
@@ -83,22 +92,48 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
             ) {
                 composable<LoggedRoutes.Menu> {
                     MainLoggedMenu(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onTaskClick = { taskId, taskTitle ->
+                            nav.navigate(LoggedRoutes.TaskDetail(taskId = taskId, taskTitle = taskTitle))
+                        },
+                        onProfileClick = goProfile,
+                        onSettingsClick = goConfig,
+                        onCalendarClick = goCalendar,
+                        appViewModel = appViewModel
                     )
                 }
 
                 composable<LoggedRoutes.TaskList> {
+                    val sections = organizarTareasPorFecha(tasks)
                     TaskListScreen(
-                        uiState = sampleTaskListFull(),
-                        onAdd = { /* TODO: Implementar navegación a crear tarea */ }
+                        uiState = sections,
+                        onAdd = { nav.navigate(LoggedRoutes.Menu) },
+                        onTaskClick = { taskId, taskTitle ->
+                            nav.navigate(LoggedRoutes.TaskDetail(taskId = taskId, taskTitle = taskTitle))
+                        },
+                        onProfileClick = goProfile,
+                        onSettingsClick = goConfig,
+                        onCalendarClick = goCalendar,
+                        onTaskToggle = { taskId, completed ->
+                            appViewModel.toggleTaskCompletion(taskId, completed)
+                        },
+                        appViewModel = appViewModel
                     )
                 }
 
-                composable<LoggedRoutes.TaskDetail> {
-                    TaskTemplateScreen(
-                        task = sampleTaskDetail(),
-                        onAddSubItem = { /* TODO: Implementar agregar subtarea */ }
-                    )
+                composable<LoggedRoutes.TaskDetail> { backStackEntry ->
+                    val args = backStackEntry.toRoute<LoggedRoutes.TaskDetail>()
+                    val task = appViewModel.getTaskById(args.taskId)
+
+                    if (task != null) {
+                        TaskTemplateScreen(
+                            task = task,
+                            onAddSubItem = { },
+                            onBack = goBack,
+                            onProfileClick = goProfile,
+                            appViewModel = appViewModel
+                        )
+                    }
                 }
 
                 composable<LoggedRoutes.Timer> {
@@ -144,7 +179,8 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
 
                 composable<LoggedRoutes.Profile> {
                     ProfileScreen(
-                        onBack = goBack
+                        onBack = goBack,
+                        appViewModel = appViewModel
                     )
                 }
 
