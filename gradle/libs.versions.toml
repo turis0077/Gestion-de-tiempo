@@ -1,6 +1,6 @@
 [versions]
 agp = "8.11.2"
-kotlin = "2.1.0"
+kotlin = "2.2.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -53,6 +53,8 @@ ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref =
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 # Serializador JSON que trabaja con kotlinx.serialization
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+# NUEVO: Autenticación OAuth2 para Ktor
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
@@ -78,5 +80,6 @@ ktor = [
     "ktor-client-content-negotiation",
     "ktor-client-core",
     "ktor-client-logging",
+    "ktor-client-auth",
     "ktor-serialization-kotlinx-json"
 ]
