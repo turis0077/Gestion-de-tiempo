@@ -101,6 +101,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation("com.google.auth:google-auth-library-oauth2-http:1.7.0")
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))

@@ -1,6 +1,7 @@
 package com.turis.gestiondetiempo.model
 
 import androidx.compose.ui.graphics.Color
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -13,11 +14,13 @@ enum class TaskTag(val label: String, val tint: Color) {
     Ninguno("Sin categoría", Color(0xFFE6E6E6))
 }
 
+@Serializable
 data class ChipInfo(
     val text: String,
     val muted: Boolean = false
 )
 
+@Serializable
 data class SubItem(
     val title: String,
     val done: Boolean = false
