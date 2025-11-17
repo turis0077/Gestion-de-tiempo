@@ -15,10 +15,20 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -109,12 +119,16 @@ fun TaskListScreen(
                 itemsIndexed(section.items, key = { _, it -> it.id }) { index, task ->
                     var tagExpanded by remember { mutableStateOf(false) }
                     var showDeleteDialog by remember { mutableStateOf(false) }
+                    var showTimeDialog by remember { mutableStateOf(false) }
                     var selectedTag by remember(task.tag) { mutableStateOf(task.tag) }
+                    var selectedHours by remember { mutableStateOf(0) }
+                    var selectedMinutes by remember { mutableStateOf(0) }
+                    var displayTime by remember { mutableStateOf("00:00") }
 
                     val tagContainerColor = selectedTag.tint
                     val tagContentColor = MaterialTheme.colorScheme.onSurface
 
-                    // Diálogo de confirmación
+                    // Diálogo de confirmación de tarea completada
                     if (showDeleteDialog) {
                         AlertDialog(
                             onDismissRequest = { showDeleteDialog = false },
@@ -131,6 +145,21 @@ fun TaskListScreen(
                                 TextButton(onClick = { showDeleteDialog = false }) {
                                     Text("No")
                                 }
+                            }
+                        )
+                    }
+
+                    // Diálogo de selección de tiempo
+                    if (showTimeDialog) {
+                        TimeSelectionDialog(
+                            hours = selectedHours,
+                            minutes = selectedMinutes,
+                            onHoursChange = { selectedHours = it },
+                            onMinutesChange = { selectedMinutes = it },
+                            onDismiss = { showTimeDialog = false },
+                            onConfirm = {
+                                displayTime = "%02d:%02d".format(selectedHours, selectedMinutes)
+                                showTimeDialog = false
                             }
                         )
                     }
@@ -228,7 +257,19 @@ fun TaskListScreen(
                                 ) {
                                     ProgressChip(task = task)
                                     InfoIconChip(onClick = { onTaskClick(task.id, task.title) })
-                                    TimeChip(task.chips.lastOrNull()?.text ?: "10:00")
+                                    Surface(
+                                        shape = RoundedCornerShape(10.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                                        color = MaterialTheme.colorScheme.surface,
+                                        tonalElevation = 0.dp,
+                                        onClick = { showTimeDialog = true }
+                                    ) {
+                                        Text(
+                                            text = displayTime,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -317,6 +358,151 @@ private fun PreviewFull() {
     GestionDeTiempoTheme { TaskListScreen(uiState = sampleTaskListFull()) }
 }
 
+// Diálogo de selección de tiempo con carruseles
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TimeSelectionDialog(
+    hours: Int,
+    minutes: Int,
+    onHoursChange: (Int) -> Unit,
+    onMinutesChange: (Int) -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val hoursListState = rememberLazyListState(initialFirstVisibleItemIndex = hours)
+    val minutesListState = rememberLazyListState(initialFirstVisibleItemIndex = minutes)
+    val coroutineScope = rememberCoroutineScope()
 
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("¿Cuánto tiempo planeas tardarte para esta tarea?") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Carrusel de horas
+                    NumberPicker(
+                        state = hoursListState,
+                        range = 0..99,
+                        label = "Horas",
+                        onValueChange = onHoursChange,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Spacer(Modifier.width(16.dp))
+
+                    // Carrusel de minutos
+                    NumberPicker(
+                        state = minutesListState,
+                        range = 0..99,
+                        label = "Minutos",
+                        onValueChange = onMinutesChange,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+// Componente de carrusel de números
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NumberPicker(
+    state: LazyListState,
+    range: IntRange,
+    label: String,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val snapBehavior = rememberSnapFlingBehavior(lazyListState = state)
+    val coroutineScope = rememberCoroutineScope()
+
+    // Detectar cambios en el scroll y actualizar el valor
+    LaunchedEffect(state) {
+        snapshotFlow { state.firstVisibleItemIndex }
+            .distinctUntilChanged()
+            .collect { index ->
+                val value = range.first + index
+                onValueChange(value)
+            }
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Box(
+            modifier = Modifier
+                .height(150.dp)
+                .width(80.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            // Indicador central
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        RoundedCornerShape(8.dp)
+                    )
+            )
+
+            LazyColumn(
+                state = state,
+                flingBehavior = snapBehavior,
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(range.count()) { index ->
+                    val number = range.first + index
+                    val isSelected = state.firstVisibleItemIndex == index
+
+                    Text(
+                        text = "%02d".format(number),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        ),
+                        color = if (isSelected)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier
+                            .height(50.dp)
+                            .wrapContentHeight(Alignment.CenterVertically)
+                            .clickable {
+                                coroutineScope.launch {
+                                    state.animateScrollToItem(index)
+                                }
+                            }
+                    )
+                }
+            }
+        }
+    }
+}
 
 

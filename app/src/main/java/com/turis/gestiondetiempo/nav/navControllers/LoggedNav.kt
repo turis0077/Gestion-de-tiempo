@@ -107,7 +107,7 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
                     val sections = organizarTareasPorFecha(tasks)
                     TaskListScreen(
                         uiState = sections,
-                        onAdd = { /* TODO: Implementar navegación a crear tarea */ },
+                        onAdd = { nav.navigate(LoggedRoutes.Menu) },
                         onTaskClick = { taskId, taskTitle ->
                             nav.navigate(LoggedRoutes.TaskDetail(taskId = taskId, taskTitle = taskTitle))
                         },
@@ -128,7 +128,7 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
                     if (task != null) {
                         TaskTemplateScreen(
                             task = task,
-                            onAddSubItem = { /* TODO: Implementar agregar subtarea */ },
+                            onAddSubItem = { },
                             onBack = goBack,
                             onProfileClick = goProfile,
                             appViewModel = appViewModel

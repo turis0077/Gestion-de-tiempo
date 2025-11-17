@@ -150,17 +150,6 @@ private fun ProfileContent(
                     ) {
                         Text("Seleccionar de galería")
                     }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedButton(
-                        onClick = {
-                            // TODO: Implementar cámara
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Tomar foto")
-                    }
                 }
             },
             confirmButton = {
