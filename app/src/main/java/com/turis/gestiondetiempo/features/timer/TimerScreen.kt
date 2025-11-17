@@ -43,8 +43,10 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimerScreen(onBack: () -> Unit = {}) {
-    var totalSeconds by remember { mutableStateOf(0L) }
+fun TimerScreen(
+    initialSeconds: Int = 0
+) {
+    var totalSeconds by remember { mutableStateOf(initialSeconds.toLong()) }
     var isRunning by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRunning) {
@@ -62,94 +64,78 @@ fun TimerScreen(onBack: () -> Unit = {}) {
     val seconds = (totalSeconds % 60).toInt()
     val timeText = String.format("%02d:%02d", minutes, seconds)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = "Atrás"
-                        )
-                    }
-                },
-                title = { Text("Tarea de cálculo") }
-            )
-        }
-    ) { innerPadding ->
-        Box(
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(32.dp),
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(top = 48.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(32.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp)
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.90f),
+                tonalElevation = 0.dp,
+                shadowElevation = 4.dp,
+                modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.90f),
-                    tonalElevation = 0.dp,
-                    shadowElevation = 4.dp,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                ) {
-                    Text(
-                        text = timeText,
-                        fontSize = 56.sp,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 36.dp, vertical = 22.dp)
-                    )
+                Text(
+                    text = timeText,
+                    fontSize = 56.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 36.dp, vertical = 22.dp)
+                )
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { totalSeconds += 5 * 60 },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier.size(88.dp)
+                ) { Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "Agregar 5 minutos")
                 }
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(32.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = { totalSeconds += 5 * 60 },
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(88.dp)
-                    ) { Icon(
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = "Agregar 5 minutos")
-                    }
-
-                    Button(
-                        onClick = { totalSeconds = maxOf(0, totalSeconds - 5 * 60) },
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(88.dp)
-                    ) { Icon(
-                        imageVector = Icons.Outlined.ArrowDropDown,
-                        contentDescription = "Restar 5 minutos")
-                    }
-
-                    Button(
-                        onClick = { isRunning = !isRunning },
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(88.dp)
-                    ) { Text(if (isRunning) "Parar" else "Iniciar") }
+                Button(
+                    onClick = { totalSeconds = maxOf(0, totalSeconds - 5 * 60) },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier.size(88.dp)
+                ) { Icon(
+                    imageVector = Icons.Outlined.ArrowDropDown,
+                    contentDescription = "Restar 5 minutos")
                 }
+
+                Button(
+                    onClick = { isRunning = !isRunning },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier.size(88.dp)
+                ) { Text(if (isRunning) "Parar" else "Iniciar") }
             }
         }
     }

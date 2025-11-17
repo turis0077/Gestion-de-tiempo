@@ -129,13 +129,19 @@ fun LoggedNav(
                             onAddSubItem = { },
                             onBack = goBack,
                             onProfileClick = goProfile,
-                            appViewModel = appViewModel
+                            appViewModel = appViewModel,
+                            onTimerClick = { totalSeconds ->
+                                nav.navigate(LoggedRoutes.Timer(initialSeconds = totalSeconds))
+                            }
                         )
                     }
                 }
 
-                composable<LoggedRoutes.Timer> {
-
+                composable<LoggedRoutes.Timer> { backStackEntry ->
+                    val args = backStackEntry.toRoute<LoggedRoutes.Timer>()
+                    com.turis.gestiondetiempo.features.timer.TimerScreen(
+                        initialSeconds = args.initialSeconds
+                    )
                 }
 
         composable<LoggedRoutes.Calendar> {

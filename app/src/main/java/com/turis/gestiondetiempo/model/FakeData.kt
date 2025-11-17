@@ -31,7 +31,9 @@ data class Task(
     val chips: List<ChipInfo> = emptyList(),
     val subItems: List<SubItem> = emptyList(),
     val completed: Boolean = false,
-    val description: String = ""
+    val description: String = "",
+    val timeMinutes: Int = 0,  // Minutos
+    val timeSeconds: Int = 0   // Segundos
 )
 
 data class TaskSection(

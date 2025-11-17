@@ -121,9 +121,11 @@ fun TaskListScreen(
                     var showDeleteDialog by remember { mutableStateOf(false) }
                     var showTimeDialog by remember { mutableStateOf(false) }
                     var selectedTag by remember(task.tag) { mutableStateOf(task.tag) }
-                    var selectedHours by remember { mutableStateOf(0) }
-                    var selectedMinutes by remember { mutableStateOf(0) }
-                    var displayTime by remember { mutableStateOf("00:00") }
+                    var selectedMinutes by remember(task.timeMinutes) { mutableStateOf(task.timeMinutes) }
+                    var selectedSeconds by remember(task.timeSeconds) { mutableStateOf(task.timeSeconds) }
+                    var displayTime by remember(task.timeMinutes, task.timeSeconds) {
+                        mutableStateOf("%02d:%02d".format(task.timeMinutes, task.timeSeconds))
+                    }
 
                     val tagContainerColor = selectedTag.tint
                     val tagContentColor = MaterialTheme.colorScheme.onSurface
@@ -152,13 +154,15 @@ fun TaskListScreen(
                     // Diálogo de selección de tiempo
                     if (showTimeDialog) {
                         TimeSelectionDialog(
-                            hours = selectedHours,
-                            minutes = selectedMinutes,
-                            onHoursChange = { selectedHours = it },
-                            onMinutesChange = { selectedMinutes = it },
+                            hours = selectedMinutes,
+                            minutes = selectedSeconds,
+                            onHoursChange = { selectedMinutes = it },
+                            onMinutesChange = { selectedSeconds = it },
                             onDismiss = { showTimeDialog = false },
                             onConfirm = {
-                                displayTime = "%02d:%02d".format(selectedHours, selectedMinutes)
+                                displayTime = "%02d:%02d".format(selectedMinutes, selectedSeconds)
+                                // Actualizar en el ViewModel
+                                appViewModel.updateTask(task.copy(timeMinutes = selectedMinutes, timeSeconds = selectedSeconds))
                                 showTimeDialog = false
                             }
                         )
@@ -386,22 +390,22 @@ fun TimeSelectionDialog(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Carrusel de horas
+                    // Carrusel de minutos
                     NumberPicker(
                         state = hoursListState,
                         range = 0..99,
-                        label = "Horas",
+                        label = "Minutos",
                         onValueChange = onHoursChange,
                         modifier = Modifier.weight(1f)
                     )
 
                     Spacer(Modifier.width(16.dp))
 
-                    // Carrusel de minutos
+                    // Carrusel de segundos
                     NumberPicker(
                         state = minutesListState,
-                        range = 0..99,
-                        label = "Minutos",
+                        range = 0..59,
+                        label = "Segundos",
                         onValueChange = onMinutesChange,
                         modifier = Modifier.weight(1f)
                     )

@@ -29,14 +29,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -84,6 +87,10 @@ fun SettingsScreen(
     var showLanguageMenu by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("Español") }
 
+    // Estado para el diálogo de edición de username
+    var showEditUsernameDialog by remember { mutableStateOf(false) }
+    var tempUsername by remember { mutableStateOf("") }
+
     // Obtener username y password del AppViewModel
     val username by (appViewModel?.username ?: remember {
         kotlinx.coroutines.flow.MutableStateFlow("User1259")
@@ -110,6 +117,38 @@ fun SettingsScreen(
     }
 
     val switchChecked = themeState.themeMode == ThemePreferences.ThemeMode.DARK
+
+    // Diálogo de edición de nombre de usuario
+    if (showEditUsernameDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditUsernameDialog = false },
+            title = { Text("Editar nombre de usuario") },
+            text = {
+                OutlinedTextField(
+                    value = tempUsername,
+                    onValueChange = { tempUsername = it },
+                    placeholder = { Text("Nuevo nombre de usuario") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (tempUsername.isNotBlank()) {
+                        appViewModel?.updateUsername(tempUsername)
+                    }
+                    showEditUsernameDialog = false
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditUsernameDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Box(
         modifier = modifier
@@ -281,7 +320,11 @@ fun SettingsScreen(
                 LabeledFilledField(
                     label = "Nombre de usuario",
                     value = username,
-                    trailing = { EditBadge() }
+                    trailing = { EditBadge() },
+                    onEditClick = {
+                        tempUsername = username
+                        showEditUsernameDialog = true
+                    }
                 )
             }
             item {
@@ -371,7 +414,8 @@ private fun SectionChip(title: String) {
 private fun LabeledFilledField(
     label: String,
     value: String,
-    trailing: @Composable (() -> Unit)? = null
+    trailing: @Composable (() -> Unit)? = null,
+    onEditClick: (() -> Unit)? = null
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
@@ -400,7 +444,23 @@ private fun LabeledFilledField(
                 )
                 if (trailing != null) {
                     Spacer(Modifier.width(8.dp))
-                    trailing()
+                    if (onEditClick != null) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
+                            onClick = onEditClick
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = stringResource(R.string.edit_desc),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(6.dp),
+                            )
+                        }
+                    } else {
+                        trailing()
+                    }
                 }
             }
         }

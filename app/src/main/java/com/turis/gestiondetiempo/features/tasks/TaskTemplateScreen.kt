@@ -48,6 +48,7 @@ fun TaskTemplateScreen(
     onAddSubItem: () -> Unit = {},
     onBack: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onTimerClick: ((Int) -> Unit)? = null,
     tagsViewModel: TagsViewModel = viewModel(),
     appViewModel: AppViewModel = viewModel()
 ) {
@@ -185,7 +186,10 @@ fun TaskTemplateScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddSubItem,
+                onClick = {
+                    val totalSeconds = task.timeMinutes * 60 + task.timeSeconds
+                    onTimerClick?.invoke(totalSeconds)
+                },
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 Icon(Icons.Outlined.AccessTime, contentDescription = "Reloj")
