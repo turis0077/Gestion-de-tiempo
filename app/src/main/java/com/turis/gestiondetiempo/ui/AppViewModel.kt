@@ -38,17 +38,32 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _profilePhotoUri = MutableStateFlow<Uri?>(null)
     val profilePhotoUri: StateFlow<Uri?> = _profilePhotoUri.asStateFlow()
 
-    // Estado de las tareas (desde Room)
+    // Usuario actual logueado
+    private val _currentUser = MutableStateFlow("")
+    val currentUser: StateFlow<String> = _currentUser.asStateFlow()
+
+    // Estado de las tareas (desde Room, filtradas por usuario)
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
     init {
-        // Cargar tareas desde Room
+        // Cargar tareas desde Room filtradas por usuario
         viewModelScope.launch {
-            taskDao.getAllTasks().map { entities ->
-                entities.map { it.toTask() }
-            }.collect { taskList ->
-                _tasks.value = taskList
+            _currentUser.collect { user ->
+                if (user.isNotEmpty()) {
+                    taskDao.getTasksByUser(user).map { entities ->
+                        entities.map { it.toTask() }
+                    }.collect { taskList ->
+                        _tasks.value = taskList
+                    }
+                } else {
+                    // Si no hay usuario, cargar todas las tareas predeterminadas
+                    taskDao.getAllTasks().map { entities ->
+                        entities.map { it.toTask() }
+                    }.collect { taskList ->
+                        _tasks.value = taskList
+                    }
+                }
             }
         }
 
@@ -57,10 +72,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             val currentTasks = taskDao.getAllTasks()
             currentTasks.collect { entities ->
                 if (entities.isEmpty()) {
-                    // Insertar tareas de muestra
+                    // Insertar tareas de muestra (sin usuario, disponibles para todos)
                     val sampleTasks = getAllTasksFromSections()
                     sampleTasks.forEach { task ->
-                        taskDao.insertTask(task.toEntity())
+                        taskDao.insertTask(task.copy(user = "").toEntity())
                     }
                 }
             }
@@ -101,6 +116,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Establecer usuario actual (para filtrar tareas)
+    fun setCurrentUser(user: String) {
+        viewModelScope.launch {
+            _currentUser.emit(user)
+        }
+    }
+
     // Obtener tarea por ID
     fun getTaskById(taskId: String): Task? {
         return _tasks.value.find { it.id == taskId }
@@ -136,7 +158,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             title = title,
             date = date,
             tag = tag,
-            description = ""
+            description = "",
+            user = _currentUser.value  // Asignar usuario actual
         )
 
         viewModelScope.launch {

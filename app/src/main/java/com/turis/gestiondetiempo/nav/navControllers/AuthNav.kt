@@ -5,10 +5,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.turis.gestiondetiempo.auth.CrearCuentaScreen
+import com.turis.gestiondetiempo.auth.CrearCuentaRoute
 import com.turis.gestiondetiempo.auth.LoginScreen
 import com.turis.gestiondetiempo.auth.PantallaInicial
-import com.turis.gestiondetiempo.auth.SignInState
 import com.turis.gestiondetiempo.nav.routes.AuthRoutes
 import com.turis.gestiondetiempo.ui.AppViewModel
 
@@ -43,10 +42,9 @@ fun AuthNav(
         }
 
         composable<AuthRoutes.SignIn> {
-            CrearCuentaScreen(
-                state = SignInState(),
-                onEvent = { event -> },
-                onBack = { nav.popBackStack() }
+            CrearCuentaRoute(
+                onBack = { nav.popBackStack() },
+                onSuccess = { nav.popBackStack() }
             )
         }
     }

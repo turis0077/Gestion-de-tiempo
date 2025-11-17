@@ -1,5 +1,3 @@
-//Pantallas de Creación de cuenta en sus diferentes estados.
-
 package com.turis.gestiondetiempo.auth
 
 import androidx.compose.foundation.background
@@ -44,7 +42,6 @@ fun CrearCuentaRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // Navegar cuando el registro sea exitoso
     if (state.isSuccess) {
         onSuccess()
     }

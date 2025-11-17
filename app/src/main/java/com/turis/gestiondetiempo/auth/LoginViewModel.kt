@@ -1,14 +1,24 @@
 package com.turis.gestiondetiempo.auth
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.turis.gestiondetiempo.data.local.AppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val database = AppDatabase.getDatabase(application)
+    private val userDao = database.userDao()
 
     private val _state = MutableStateFlow(value = LoginState())
     val state = _state.asStateFlow()
+
+    private var loginSuccessful = false
+    private var loggedInUsername = ""
 
     fun onEvent(event: LoginEvent) {
         when (event) {
@@ -16,7 +26,7 @@ class LoginViewModel : ViewModel() {
                 _state.update {
                     it.copy(
                         username = it.username.copy(value = event.value),
-                        errorMessage = null // Limpiar error al escribir
+                        errorMessage = null
                     )
                 }
             }
@@ -24,7 +34,7 @@ class LoginViewModel : ViewModel() {
                 _state.update {
                     it.copy(
                         password = it.password.copy(value = event.value),
-                        errorMessage = null // Limpiar error al escribir
+                        errorMessage = null
                     )
                 }
             }
@@ -45,16 +55,50 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        // Si todo está bien, limpiar el error y permitir el login
-        _state.update {
-            it.copy(
-                errorMessage = null,
-                isLoading = false
-            )
+        _state.update { it.copy(isLoading = true, errorMessage = null) }
+
+        viewModelScope.launch {
+            try {
+                val user = userDao.login(
+                    currentState.username.value,
+                    currentState.password.value
+                )
+
+                if (user != null) {
+                    // Login exitoso
+                    loginSuccessful = true
+                    loggedInUsername = user.username
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
+                } else {
+                    // Usuario o contraseña incorrectos
+                    loginSuccessful = false
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Usuario o contraseña incorrectos"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                loginSuccessful = false
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Error al iniciar sesión: ${e.message}"
+                    )
+                }
+            }
         }
     }
 
     fun getUsernameValue(): String = _state.value.username.value
     fun getPasswordValue(): String = _state.value.password.value
     fun hasError(): Boolean = _state.value.errorMessage != null
+    fun isLoginSuccessful(): Boolean = loginSuccessful
+    fun getLoggedInUsername(): String = loggedInUsername
 }

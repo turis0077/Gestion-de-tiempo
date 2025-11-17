@@ -62,6 +62,13 @@ fun LoginScreen(
     val colors = MaterialTheme.colorScheme
     val loginState by loginViewModel.state.collectAsState()
 
+    // Detectar login exitoso y navegar
+    if (loginViewModel.isLoginSuccessful() && !loginState.isLoading) {
+        appViewModel?.updateUsername(loginViewModel.getLoggedInUsername())
+        appViewModel?.setCurrentUser(loginViewModel.getLoggedInUsername())
+        onLogin()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
