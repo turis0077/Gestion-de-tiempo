@@ -7,14 +7,15 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [TaskEntity::class],
-    version = 1,
+    entities = [TaskEntity::class, UserEntity::class],
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
@@ -25,8 +26,10 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "task_database"
-                ).build()
+                    "app_database"
+                )
+                    .fallbackToDestructiveMigration() // Para desarrollo, borra la BD al cambiar versión
+                    .build()
                 INSTANCE = instance
                 instance
             }

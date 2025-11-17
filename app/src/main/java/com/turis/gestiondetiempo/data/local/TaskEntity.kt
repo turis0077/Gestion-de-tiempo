@@ -22,7 +22,8 @@ data class TaskEntity(
     val completed: Boolean,
     val description: String,
     val timeMinutes: Int,
-    val timeSeconds: Int
+    val timeSeconds: Int,
+    val user: String  // Usuario propietario
 )
 
 fun Task.toEntity(): TaskEntity {
@@ -36,7 +37,8 @@ fun Task.toEntity(): TaskEntity {
         completed = completed,
         description = description,
         timeMinutes = timeMinutes,
-        timeSeconds = timeSeconds
+        timeSeconds = timeSeconds,
+        user = user
     )
 }
 
@@ -51,6 +53,7 @@ fun TaskEntity.toTask(): Task {
         completed = completed,
         description = description,
         timeMinutes = timeMinutes,
-        timeSeconds = timeSeconds
+        timeSeconds = timeSeconds,
+        user = user
     )
 }

@@ -39,13 +39,21 @@ import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 @Composable
 fun CrearCuentaRoute(
     onBack: () -> Unit,
+    onSuccess: () -> Unit = {},
     viewModel: SignInViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Navegar cuando el registro sea exitoso
+    if (state.isSuccess) {
+        onSuccess()
+    }
+
     CrearCuentaScreen(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = onBack
+        onBack = onBack,
+        onPhotoSelect = viewModel::setPhotoUri
     )
 }
 
@@ -54,7 +62,8 @@ fun CrearCuentaRoute(
 fun CrearCuentaScreen(
     state: SignInState,
     onEvent: (SignInEvent) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPhotoSelect: (android.net.Uri?) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
