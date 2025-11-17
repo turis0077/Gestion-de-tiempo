@@ -1,5 +1,7 @@
 package com.turis.gestiondetiempo.nav.navBar
 
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,8 +31,10 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.turis.gestiondetiempo.account.SettingsScreen
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
@@ -52,6 +57,7 @@ fun NavBarRouting.navRoute(): Any = when (this) {
 fun LoggedNavBar(
     config: TopBarConfig,
     userName: String = "User1259",
+    profilePhotoUri: Uri? = null,
     onBack: (() -> Unit)? = null,
     onHome: (() -> Unit)? = null,
     onProfile: (() -> Unit)? = null,
@@ -73,16 +79,27 @@ fun LoggedNavBar(
                                 Box(
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .clip(RoundedCornerShape(50))
+                                        .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.primaryContainer),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Person,
-                                        contentDescription = "Usuario",
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.size(22.dp)
-                                    )
+                                    if (profilePhotoUri != null) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(profilePhotoUri),
+                                            contentDescription = "Foto de perfil",
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Person,
+                                            contentDescription = "Usuario",
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    }
                                 }
                                 Text(
                                     text = "  Hola, $userName",

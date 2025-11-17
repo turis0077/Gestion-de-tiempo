@@ -41,6 +41,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,16 +59,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.turis.gestiondetiempo.ui.AppViewModel
 import com.turis.gestiondetiempo.ui.tags.TagsViewModel
 import com.turis.gestiondetiempo.ui.tags.resolve
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 import com.turis.gestiondetiempo.R
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
 import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
 import com.turis.gestiondetiempo.features.tasks.TaskListScreen
 import com.turis.gestiondetiempo.model.sampleTaskListOne
+import com.turis.gestiondetiempo.model.TaskTag
+import com.turis.gestiondetiempo.model.organizarTareasPorFecha
 import com.turis.gestiondetiempo.nav.navBar.LoggedNavBar
 import com.turis.gestiondetiempo.nav.navBar.TopBarConfig
 import androidx.compose.ui.input.pointer.pointerInput
+import java.time.LocalDate
 import java.util.Calendar
 
 class LoggedMenu : ComponentActivity() {
@@ -94,25 +104,69 @@ fun MainLoggedMenu(
     onSettingsClick: () -> Unit = {},
     onCalendarClick: () -> Unit = {},
     tagsViewModel: TagsViewModel = viewModel(),
-
+    appViewModel: AppViewModel = viewModel()
 ) {
     var text by rememberSaveable { mutableStateOf("")}
+    var selectedTag by remember { mutableStateOf(TaskTag.Ninguno) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     var tagExpanded by remember { mutableStateOf(false) }
 
-    val tagColors = tagsViewModel.selectedTag?.color?.resolve()
-    val tagContainerColor = tagColors?.container ?: MaterialTheme.colorScheme.surfaceVariant
-    val tagContentColor   = tagColors?.onContainer ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val tagContainerColor = selectedTag.tint
+    val tagContentColor = MaterialTheme.colorScheme.onSurface
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-    var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Observar las tareas del ViewModel
+    val tasks by appViewModel.tasks.collectAsState()
+    val taskSections = organizarTareasPorFecha(tasks)
 
     // Estado para el ModalBottomSheet
     var showTaskList by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
+
+    // Diálogo de confirmación para crear tarea
+    if (showConfirmDialog && text.isNotBlank()) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("¿Quieres agendar esta tarea?") },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("Descripción: $text", style = MaterialTheme.typography.bodyLarge)
+                    Text("Categoría: ${selectedTag.label}", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "Fecha: ${selectedDate?.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "No especificada"}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    if (selectedDate != null) {
+                        appViewModel.createTask(text, selectedDate!!, selectedTag)
+                        text = ""
+                        selectedTag = TaskTag.Ninguno
+                        selectedDate = null
+                    }
+                    showConfirmDialog = false
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -121,8 +175,8 @@ fun MainLoggedMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(top = 80.dp, bottom = 15.dp)
-                .padding(25.dp),
+                .padding(top = 60.dp, bottom = 15.dp)
+                .padding(horizontal = 25.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -132,7 +186,7 @@ fun MainLoggedMenu(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(25.dp)
+                    .padding(vertical = 8.dp)
             )
 
             ElevatedCard(
@@ -180,15 +234,30 @@ fun MainLoggedMenu(
                                         )
                                     }
 
-                                    TagsDropdownMenu(
+                                    // Menú simple de selección de tags
+                                    DropdownMenu(
                                         expanded = tagExpanded,
-                                        onDismiss = { tagExpanded = false },
-                                        tags = tagsViewModel.tags,
-                                        onSelect = { tagsViewModel.select(it) },
-                                        onEdit = { tagsViewModel.upsert(it) },
-                                        onCreateNew = { tagsViewModel.createNewTag("Nueva") },
-                                        modifier = Modifier.width(260.dp)
-                                    )
+                                        onDismissRequest = { tagExpanded = false },
+                                        modifier = Modifier.width(200.dp)
+                                    ) {
+                                        TaskTag.values().forEach { tag ->
+                                            DropdownMenuItem(
+                                                text = { Text(tag.label) },
+                                                onClick = {
+                                                    selectedTag = tag
+                                                    tagExpanded = false
+                                                },
+                                                leadingIcon = {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(24.dp)
+                                                            .clip(RoundedCornerShape(4.dp))
+                                                            .background(tag.tint)
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
 
                                 FilledIconButton(
@@ -200,7 +269,7 @@ fun MainLoggedMenu(
                                         DatePickerDialog(
                                             context,
                                             { _, yy, mm, dd ->
-                                                selectedDateText = "%02d/%02d/%04d".format(dd, mm + 1, yy)
+                                                selectedDate = LocalDate.of(yy, mm + 1, dd)
                                             },
                                             year, month, day
                                         ).show()
@@ -224,25 +293,16 @@ fun MainLoggedMenu(
                 }
             }
 
-            selectedDateText?.let { dateText ->
-                Row(
+            // Botón para crear tarea
+            if (text.isNotBlank() && selectedDate != null) {
+                Button(
+                    onClick = { showConfirmDialog = true },
                     modifier = Modifier
-                        .padding(top = 12.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 120.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = "Fecha límite: $dateText",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Text("Crear tarea")
                 }
             }
         }
@@ -251,7 +311,7 @@ fun MainLoggedMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp),
+                .padding(bottom = 80.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             Column(
@@ -300,12 +360,16 @@ fun MainLoggedMenu(
             containerColor = MaterialTheme.colorScheme.surface
         ) {
             TaskListScreen(
-                uiState = sampleTaskListOne(),
-                onAdd = { /* TODO: Implementar navegación a crear tarea */ },
+                uiState = taskSections,
+                onAdd = { showTaskList = false },
                 onTaskClick = onTaskClick,
                 onProfileClick = onProfileClick,
                 onSettingsClick = onSettingsClick,
-                onCalendarClick = onCalendarClick
+                onCalendarClick = onCalendarClick,
+                onTaskToggle = { taskId, completed ->
+                    appViewModel.toggleTaskCompletion(taskId, completed)
+                },
+                appViewModel = appViewModel
             )
         }
     }

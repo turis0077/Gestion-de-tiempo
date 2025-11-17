@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.features.tags.TagsDropdownMenu
 import com.turis.gestiondetiempo.model.*
+import com.turis.gestiondetiempo.ui.AppViewModel
 import com.turis.gestiondetiempo.ui.components.TimeChip
 import com.turis.gestiondetiempo.ui.tags.TagsViewModel
 import com.turis.gestiondetiempo.ui.tags.resolve
@@ -44,7 +45,9 @@ fun TaskListScreen(
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onCalendarClick: () -> Unit = {},
-    tagsViewModel: TagsViewModel = viewModel()
+    onTaskToggle: (String, Boolean) -> Unit = { _, _ -> },
+    tagsViewModel: TagsViewModel = viewModel(),
+    appViewModel: AppViewModel = viewModel()
 ) {
     Scaffold(
         floatingActionButton = {
@@ -63,44 +66,8 @@ fun TaskListScreen(
                 .background(MaterialTheme.colorScheme.surface),
             contentPadding = PaddingValues(bottom = 96.dp)
         ) {
-            // Header
+            // Título
             item {
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { onProfileClick() }
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(22.dp)
-                                    .align(Alignment.Center)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary)
-                            )
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            "Hola, User1259",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    IconButton(onClick = onSettingsClick) { Icon(Icons.Outlined.Settings, null) }
-                    IconButton(onClick = onCalendarClick) { Icon(Icons.Outlined.CalendarMonth, null) }
-                }
                 Spacer(Modifier.height(16.dp))
                 Text(
                     "Tus tareas",
@@ -108,7 +75,25 @@ fun TaskListScreen(
                     fontWeight = FontWeight.Black,
                     lineHeight = 40.sp
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(16.dp))
+            }
+
+            // Mensaje si no hay tareas
+            if (uiState.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No tienes ninguna tarea pendiente, ¡Felicidades!",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
 
             // Secciones
@@ -123,10 +108,32 @@ fun TaskListScreen(
 
                 itemsIndexed(section.items, key = { _, it -> it.id }) { index, task ->
                     var tagExpanded by remember { mutableStateOf(false) }
+                    var showDeleteDialog by remember { mutableStateOf(false) }
+                    var selectedTag by remember(task.tag) { mutableStateOf(task.tag) }
 
-                    val tagColors = tagsViewModel.selectedTag?.color?.resolve()
-                    val tagContainerColor = tagColors?.container ?: MaterialTheme.colorScheme.surfaceVariant
-                    val tagContentColor = tagColors?.onContainer ?: MaterialTheme.colorScheme.onSurfaceVariant
+                    val tagContainerColor = selectedTag.tint
+                    val tagContentColor = MaterialTheme.colorScheme.onSurface
+
+                    // Diálogo de confirmación
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = false },
+                            title = { Text("¿La tarea ya está finalizada?") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    onTaskToggle(task.id, true)
+                                    showDeleteDialog = false
+                                }) {
+                                    Text("Sí")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDeleteDialog = false }) {
+                                    Text("No")
+                                }
+                            }
+                        )
+                    }
 
                     Column(
                         modifier = Modifier
@@ -143,7 +150,14 @@ fun TaskListScreen(
                                 modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Checkbox(checked = false, onCheckedChange = null)
+                                Checkbox(
+                                    checked = task.completed,
+                                    onCheckedChange = {
+                                        if (it) {
+                                            showDeleteDialog = true
+                                        }
+                                    }
+                                )
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     task.title,
@@ -173,31 +187,46 @@ fun TaskListScreen(
                                             tint = tagContentColor,
                                             modifier = Modifier.size(18.dp)
                                         )
-                                        tagsViewModel.selectedTag?.let { tag ->
-                                            Spacer(Modifier.width(6.dp))
-                                            Text(
-                                                text = tag.name,
-                                                style = MaterialTheme.typography.labelMedium
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            text = selectedTag.label,
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+
+                                    // Menú simple de selección de tags
+                                    DropdownMenu(
+                                        expanded = tagExpanded,
+                                        onDismissRequest = { tagExpanded = false },
+                                        modifier = Modifier.width(200.dp)
+                                    ) {
+                                        TaskTag.values().forEach { tag ->
+                                            DropdownMenuItem(
+                                                text = { Text(tag.label) },
+                                                onClick = {
+                                                    selectedTag = tag
+                                                    tagExpanded = false
+                                                    // Actualizar en el ViewModel
+                                                    appViewModel.updateTask(task.copy(tag = tag))
+                                                },
+                                                leadingIcon = {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(24.dp)
+                                                            .clip(RoundedCornerShape(4.dp))
+                                                            .background(tag.tint)
+                                                    )
+                                                }
                                             )
                                         }
                                     }
-
-                                    TagsDropdownMenu(
-                                        expanded = tagExpanded,
-                                        onDismiss = { tagExpanded = false },
-                                        tags = tagsViewModel.tags,
-                                        onSelect = { tagsViewModel.select(it) },
-                                        onEdit = { tagsViewModel.upsert(it) },
-                                        onCreateNew = { tagsViewModel.createNewTag("Nueva") },
-                                        modifier = Modifier.width(260.dp)
-                                    )
                                 }
                                 Spacer(Modifier.height(6.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    ProgressChip()
+                                    ProgressChip(task = task)
                                     InfoIconChip(onClick = { onTaskClick(task.id, task.title) })
                                     TimeChip(task.chips.lastOrNull()?.text ?: "10:00")
                                 }
@@ -222,20 +251,30 @@ fun TaskListScreen(
     }
 }
 
-// Círculo de progreso (emoji temporal)
+// Círculo de progreso real basado en subtareas
 @Composable
-fun ProgressChip() {
+fun ProgressChip(task: Task) {
+    val totalSubItems = task.subItems.size
+    val completedSubItems = task.subItems.count { it.done }
+    val progress = if (totalSubItems > 0) completedSubItems.toFloat() / totalSubItems else 0f
+
     Surface(
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp
     ) {
-        Text(
-            text = "🔵", // Emoji de progreso
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-        )
+        Box(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
+        }
     }
 }
 
@@ -277,3 +316,7 @@ private fun PreviewOne() {
 private fun PreviewFull() {
     GestionDeTiempoTheme { TaskListScreen(uiState = sampleTaskListFull()) }
 }
+
+
+
+
