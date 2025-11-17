@@ -1,3 +1,36 @@
 <resources>
-    <string name="app_name">Gestion de tiempo</string>
+    <string name="app_name">Gestión de tiempo</string>
+
+    <!-- ConfigScreen -->
+    <string name="personalization">Personalización</string>
+    <string name="theme">Tema</string>
+    <string name="language">Idioma</string>
+    <string name="clock_background">Fondo de reloj</string>
+    <string name="upload_image">Subir imagen</string>
+    <string name="user_data">Datos de usuario</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="birth_date">Fecha de nacimiento</string>
+    <string name="gmail">Gmail</string>
+    <string name="facebook">Facebook</string>
+    <string name="other">Otro</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="delete_account">Eliminar cuenta</string>
+
+    <!-- Sample values -->
+    <string name="sample_name">Nombre</string>
+    <string name="sample_password">*************</string>
+    <string name="sample_birth_date">09/05/2004</string>
+    <string name="sample_email">GoogleUser125@gmail.com</string>
+    <string name="sample_facebook">FbUser129</string>
+
+    <!-- Language names -->
+    <string name="lang_spanish">Español</string>
+    <string name="lang_english">English</string>
+
+    <!-- Accessibility -->
+    <string name="theme_state_desc">estado del tema claro/oscuro</string>
+    <string name="dynamic_colors_desc">Colores dinámicos</string>
+    <string name="change_language_desc">Cambiar idioma</string>
+    <string name="edit_desc">Editar</string>
 </resources>

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
@@ -25,6 +26,8 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -44,12 +47,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
+import com.turis.gestiondetiempo.ui.language.LanguagePreferences
+import com.turis.gestiondetiempo.ui.language.LanguageViewModel
 import com.turis.gestiondetiempo.ui.theme.LocalExtendedColors
 import com.turis.gestiondetiempo.ui.theme.ThemePreferences
 import com.turis.gestiondetiempo.ui.theme.ThemeViewModel
@@ -58,7 +65,8 @@ import com.turis.gestiondetiempo.ui.theme.ThemeViewModel
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     onLogout: () -> Unit = {},
-    themeViewModel: ThemeViewModel? = null
+    themeViewModel: ThemeViewModel? = null,
+    languageViewModel: LanguageViewModel? = null
 ) {
     val context = LocalContext.current
 
@@ -70,12 +78,27 @@ fun SettingsScreen(
                 factory = ViewModelProvider.AndroidViewModelFactory.getInstance(appContext)
             )
         } else {
-            // Para preview, crear un ViewModel temporal (esto no se usará en producción)
             null
         }
     }
 
-    var language by remember { mutableStateOf("Español") }
+    // LanguageViewModel
+    val langViewModel = languageViewModel ?: run {
+        val appContext = context.applicationContext
+        if (appContext is android.app.Application) {
+            viewModel<LanguageViewModel>(
+                factory = ViewModelProvider.AndroidViewModelFactory.getInstance(appContext)
+            )
+        } else {
+            null
+        }
+    }
+
+    val currentLanguage by (langViewModel?.currentLanguage ?: remember {
+        kotlinx.coroutines.flow.MutableStateFlow(LanguagePreferences.Language.SPANISH)
+    }).collectAsState()
+
+    var showLanguageMenu by remember { mutableStateOf(false) }
 
     val themeState by (viewModel?.themeState ?: remember {
         kotlinx.coroutines.flow.MutableStateFlow(
@@ -103,14 +126,18 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            item { SectionChip("Personalización") }
+            item { SectionChip(stringResource(R.string.personalization)) }
 
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Tema", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(R.string.theme),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
                     Surface(
                         shape = RoundedCornerShape(22.dp),
                         color = MaterialTheme.colorScheme.surface
@@ -132,7 +159,7 @@ fun SettingsScreen(
                                 thumbContent = {
                                     Icon(
                                         imageVector = if (isDarkTheme) Icons.Filled.Bedtime else Icons.Filled.LightMode,
-                                        contentDescription = "estado del tema claro/oscuro",
+                                        contentDescription = stringResource(R.string.theme_state_desc),
                                         modifier = Modifier.padding(2.dp)
                                     )
                                 },
@@ -151,7 +178,7 @@ fun SettingsScreen(
                             FilledTonalIconButton(
                                 onClick = { viewModel?.toggleDynamicColor() },
                                 modifier = Modifier,
-                                shape = RoundedCornerShape(10.dp),
+                                shape = CircleShape,
                                 colors = if (themeState.dynamicColor) {
                                     IconButtonDefaults.filledTonalIconButtonColors(
                                         containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -163,7 +190,7 @@ fun SettingsScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Palette,
-                                    contentDescription = "Colores dinámicos"
+                                    contentDescription = stringResource(R.string.dynamic_colors_desc)
                                 )
                             }
                         }
@@ -176,25 +203,49 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Idioma", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    Row {
-                        Button(
-                            onClick = {  },
-                            shape = RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        ) {
-                            Text(language)
+                    Text(
+                        text = stringResource(R.string.language),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Box {
+                        Row {
+                            Button(
+                                onClick = { showLanguageMenu = !showLanguageMenu },
+                                shape = RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                )
+                            ) {
+                                Text(currentLanguage.displayName)
+                            }
+                            OutlinedButton(
+                                onClick = { showLanguageMenu = !showLanguageMenu },
+                                shape = RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp),
+                                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
+                                contentPadding = PaddingValues(horizontal = 10.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.ArrowDropDown,
+                                    contentDescription = stringResource(R.string.change_language_desc)
+                                )
+                            }
                         }
-                        OutlinedButton(
-                            onClick = {  },
-                            shape = RoundedCornerShape( topEnd = 14.dp, bottomEnd = 14.dp ),
-                            border = BorderStroke( width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant ),
-                            contentPadding = PaddingValues(horizontal = 10.dp),
+
+                        DropdownMenu(
+                            expanded = showLanguageMenu,
+                            onDismissRequest = { showLanguageMenu = false }
                         ) {
-                            Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Cambiar idioma")
+                            LanguagePreferences.Language.entries.forEach { language ->
+                                DropdownMenuItem(
+                                    text = { Text(language.displayName) },
+                                    onClick = {
+                                        langViewModel?.setLanguage(language)
+                                        showLanguageMenu = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -205,7 +256,11 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Fondo de reloj", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(R.string.clock_background),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
                     OutlinedButton(
                         onClick = { /* subir imagen */ },
                         shape = RoundedCornerShape(14.dp),
@@ -214,7 +269,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.outline
                         ),
                     ) {
-                        Text("Subir imagen")
+                        Text(stringResource(R.string.upload_image))
                         Spacer(Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Outlined.Add,
@@ -224,45 +279,45 @@ fun SettingsScreen(
                 }
             }
 
-            item { SectionChip("Datos de usuario") }
+            item { SectionChip(stringResource(R.string.user_data)) }
 
             item {
                 LabeledFilledField(
-                    label = "Nombre de usuario",
-                    value = "Nombre",
+                    label = stringResource(R.string.username),
+                    value = stringResource(R.string.sample_name),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = "Contraseña",
-                    value = "*************",
+                    label = stringResource(R.string.password),
+                    value = stringResource(R.string.sample_password),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = "Fecha de nacimiento",
-                    value = "09/05/2004",
+                    label = stringResource(R.string.birth_date),
+                    value = stringResource(R.string.sample_birth_date),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = "Gmail",
-                    value = "GoogleUser125@gmail.com",
+                    label = stringResource(R.string.gmail),
+                    value = stringResource(R.string.sample_email),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = "Facebook",
-                    value = "FbUser129",
+                    label = stringResource(R.string.facebook),
+                    value = stringResource(R.string.sample_facebook),
                     trailing = { EditBadge() }
                 )
             }
 
-            item { SectionChip("Otro") }
+            item { SectionChip(stringResource(R.string.other)) }
 
             item {
                 Row(
@@ -280,7 +335,7 @@ fun SettingsScreen(
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                    ) { Text("Cerrar sesión") }
+                    ) { Text(stringResource(R.string.logout)) }
 
                     OutlinedButton(
                         onClick = { /* delete */ },
@@ -288,7 +343,7 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(18.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) { Text("Eliminar cuenta") }
+                    ) { Text(stringResource(R.string.delete_account)) }
                 }
             }
 
@@ -365,7 +420,7 @@ private fun EditBadge() {
     ) {
         Icon(
             imageVector = Icons.Outlined.Edit,
-            contentDescription = "Editar",
+            contentDescription = stringResource(R.string.edit_desc),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(6.dp),
         )

@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Time Management</string>
+
+    <!-- ConfigScreen -->
+    <string name="personalization">Personalization</string>
+    <string name="theme">Theme</string>
+    <string name="language">Language</string>
+    <string name="clock_background">Clock background</string>
+    <string name="upload_image">Upload image</string>
+    <string name="user_data">User data</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="birth_date">Date of birth</string>
+    <string name="gmail">Gmail</string>
+    <string name="facebook">Facebook</string>
+    <string name="other">Other</string>
+    <string name="logout">Log out</string>
+    <string name="delete_account">Delete account</string>
+
+    <!-- Sample values -->
+    <string name="sample_name">Name</string>
+    <string name="sample_password">*************</string>
+    <string name="sample_birth_date">09/05/2004</string>
+    <string name="sample_email">GoogleUser125@gmail.com</string>
+    <string name="sample_facebook">FbUser129</string>
+
+    <!-- Language names -->
+    <string name="lang_spanish">Español</string>
+    <string name="lang_english">English</string>
+
+    <!-- Accessibility -->
+    <string name="theme_state_desc">light/dark theme state</string>
+    <string name="dynamic_colors_desc">Dynamic colors</string>
+    <string name="change_language_desc">Change language</string>
+    <string name="edit_desc">Edit</string>
+</resources>

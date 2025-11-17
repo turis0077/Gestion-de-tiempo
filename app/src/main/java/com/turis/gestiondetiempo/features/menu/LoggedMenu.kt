@@ -119,17 +119,14 @@ fun MainLoggedMenu(
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
-    // Observar las tareas del ViewModel
     val tasks by appViewModel.tasks.collectAsState()
     val taskSections = organizarTareasPorFecha(tasks)
 
-    // Estado para el ModalBottomSheet
     var showTaskList by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
 
-    // Diálogo de confirmación para crear tarea
     if (showConfirmDialog && text.isNotBlank()) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
@@ -293,7 +290,6 @@ fun MainLoggedMenu(
                 }
             }
 
-            // Botón para crear tarea
             if (text.isNotBlank() && selectedDate != null) {
                 Button(
                     onClick = { showConfirmDialog = true },
@@ -321,7 +317,6 @@ fun MainLoggedMenu(
                     .clickable { showTaskList = true }
                     .pointerInput(Unit) {
                         detectVerticalDragGestures { change, dragAmount ->
-                            // Si el usuario desliza hacia arriba (dragAmount negativo)
                             if (dragAmount < -50f) {
                                 showTaskList = true
                             }
