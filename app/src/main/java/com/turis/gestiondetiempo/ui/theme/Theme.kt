@@ -16,13 +16,21 @@ import androidx.compose.ui.platform.LocalContext
 import com.turis.gestiondetiempo.ui.theme.Cyan40
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Cyan40,
+    primary = Cyan50,
     primaryContainer = Cyan90,
-    onPrimaryContainer = Cyan30,
+    onPrimaryContainer = Cyan40,
+    secondary = Green50,
+    secondaryContainer = Green90,
+    onSecondaryContainer = Green40,
+    tertiary = Blue50,
+    tertiaryContainer = Blue90,
+    onTertiaryContainer = Blue40,
     surface = SurfaceDark,
     onSurface = onSurfaceDark,
     surfaceVariant = SurfaceVarDark,
-    onSurfaceVariant = onSurfaceVarDark
+    onSurfaceVariant = onSurfaceVarDark,
+    outline = outlineDark
+
 )
 
 private val LightColorScheme = lightColorScheme(
