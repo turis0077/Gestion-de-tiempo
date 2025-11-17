@@ -11,7 +11,6 @@ sealed interface SignInEvent {
     data object Submit: SignInEvent
     data object Reset: SignInEvent
 
-    //Eventos ficticios (para mostrar visualización)
     data object SimUserExists: SignInEvent
     data object SimWeakPassword: SignInEvent
     data object SimConfirmMismatch: SignInEvent
