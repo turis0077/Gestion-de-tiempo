@@ -1,6 +1,7 @@
 package com.turis.gestiondetiempo.auth
 
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,11 +34,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +72,7 @@ fun LoginScreen(
                 )
             )
         },
-        containerColor = colors.background
+        containerColor = colors.surface
     ) { inner ->
         Column(
             modifier = Modifier
@@ -79,20 +84,23 @@ fun LoginScreen(
         ) {
             Spacer(Modifier.height(24.dp))
 
-            // Logo circular
             Box(
                 modifier = Modifier
                     .size(140.dp)
-                    .background(colors.surfaceVariant, CircleShape),
-                contentAlignment = Alignment.Center
+                    .background(colors.surfaceVariant, CircleShape)
+                    .shadow(
+                        shape = CircleShape,
+                        elevation = 6.dp,
+                        spotColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    "CRO\nVI",
-                    textAlign = TextAlign.Center,
-                    lineHeight = 36.sp,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Black,
-                    color = colors.onSurfaceVariant
+                Image(
+                    painter = painterResource(R.drawable.app_icon),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(800.dp)
+                        .clip(CircleShape)
                 )
             }
 

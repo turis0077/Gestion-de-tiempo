@@ -1,6 +1,7 @@
 package com.turis.gestiondetiempo.auth
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,12 +26,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.turis.gestiondetiempo.R
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 
@@ -44,29 +49,34 @@ fun PantallaInicial(
 
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = colors.background
+            color = colors.surface
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .background(colors.surface),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 // logo
                 Box(
                     modifier = Modifier
                         .size(150.dp)
-                        .background(colors.surfaceVariant, CircleShape),
+                        .background(colors.surfaceVariant, CircleShape)
+                        .shadow(
+                            shape = CircleShape,
+                            elevation = 6.dp,
+                            spotColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "CRO\nVI",
-                        lineHeight = 36.sp,
-                        textAlign = TextAlign.Center,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Black,
-                        color = colors.onSurfaceVariant
+                    Image(
+                        painter = painterResource(R.drawable.app_icon),
+                        contentDescription = "Logo",
+                        modifier = Modifier
+                            .size(800.dp)
+                            .clip(CircleShape)
                     )
                 }
 
