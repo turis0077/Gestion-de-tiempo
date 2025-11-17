@@ -2,6 +2,7 @@ package com.turis.gestiondetiempo.account
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,43 +17,80 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
+import com.turis.gestiondetiempo.ui.theme.LocalExtendedColors
+import com.turis.gestiondetiempo.ui.theme.ThemePreferences
+import com.turis.gestiondetiempo.ui.theme.ThemeViewModel
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    themeViewModel: ThemeViewModel? = null
 ) {
-    var dark by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Usar viewModel solo si themeViewModel es null y tenemos un Application context válido
+    val viewModel = themeViewModel ?: run {
+        val appContext = context.applicationContext
+        if (appContext is android.app.Application) {
+            viewModel<ThemeViewModel>(
+                factory = ViewModelProvider.AndroidViewModelFactory.getInstance(appContext)
+            )
+        } else {
+            // Para preview, crear un ViewModel temporal (esto no se usará en producción)
+            null
+        }
+    }
+
     var language by remember { mutableStateOf("Español") }
+
+    val themeState by (viewModel?.themeState ?: remember {
+        kotlinx.coroutines.flow.MutableStateFlow(
+            com.turis.gestiondetiempo.ui.theme.ThemeState()
+        )
+    }).collectAsState()
+    val systemInDarkTheme = isSystemInDarkTheme()
+
+    val isDarkTheme = when (themeState.themeMode) {
+        ThemePreferences.ThemeMode.LIGHT -> false
+        ThemePreferences.ThemeMode.DARK -> true
+        ThemePreferences.ThemeMode.SYSTEM -> systemInDarkTheme
+    }
+
+    val switchChecked = themeState.themeMode == ThemePreferences.ThemeMode.DARK
 
     Box(
         modifier = modifier
@@ -75,31 +113,57 @@ fun SettingsScreen(
                     Text("Tema", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     Surface(
                         shape = RoundedCornerShape(22.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 1.dp
+                        color = MaterialTheme.colorScheme.surface
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(MaterialTheme.colorScheme.surface),
                         ) {
                             Switch(
-                                checked = dark,
-                                onCheckedChange = { dark = it },
+                                checked = switchChecked,
+                                onCheckedChange = { isChecked ->
+                                    viewModel?.setThemeMode(
+                                        if (isChecked) ThemePreferences.ThemeMode.DARK
+                                        else ThemePreferences.ThemeMode.LIGHT
+                                    )
+                                },
                                 thumbContent = {
                                     Icon(
-                                        imageVector = Icons.Outlined.Star,
-                                        contentDescription = null
+                                        imageVector = if (isDarkTheme) Icons.Filled.Bedtime else Icons.Filled.LightMode,
+                                        contentDescription = "estado del tema claro/oscuro",
+                                        modifier = Modifier.padding(2.dp)
                                     )
-                                }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.tertiary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                                    checkedBorderColor = MaterialTheme.colorScheme.tertiary,
+                                    checkedIconColor = MaterialTheme.colorScheme.tertiaryContainer,
+
+                                    uncheckedThumbColor = Color(0x9E6DEFE6),
+                                    uncheckedTrackColor = Color(0xFF259FE0),
+                                    uncheckedBorderColor = Color(0x9E6DEFE6),
+                                    uncheckedIconColor = LocalExtendedColors.current.forth
+                                )
                             )
                             FilledTonalIconButton(
-                                onClick = {  },
+                                onClick = { viewModel?.toggleDynamicColor() },
                                 modifier = Modifier,
-                                shape = RoundedCornerShape(10.dp)
+                                shape = RoundedCornerShape(10.dp),
+                                colors = if (themeState.dynamicColor) {
+                                    IconButtonDefaults.filledTonalIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                } else {
+                                    IconButtonDefaults.filledTonalIconButtonColors()
+                                }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Settings,
-                                    contentDescription = "Android"
+                                    imageVector = Icons.Outlined.Palette,
+                                    contentDescription = "Colores dinámicos"
                                 )
                             }
                         }

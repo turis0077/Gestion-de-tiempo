@@ -39,6 +39,22 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/license.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/notice.txt",
+                "META-INF/ASL2.0",
+                "META-INF/*.kotlin_module"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -61,7 +77,8 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.play.services.auth)
     implementation(libs.places)
-    implementation(libs.bundles.ktor
+    implementation(libs.bundles.ktor)
+    implementation(libs.datastore.preferences)
     implementation("com.google.auth:google-auth-library-oauth2-http:1.7.0")
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
     implementation("com.google.firebase:firebase-analytics")
