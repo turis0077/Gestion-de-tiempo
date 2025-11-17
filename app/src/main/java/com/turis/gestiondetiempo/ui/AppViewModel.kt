@@ -23,6 +23,9 @@ class AppViewModel : ViewModel() {
     private val _username = MutableStateFlow("User1259")
     val username: StateFlow<String> = _username.asStateFlow()
 
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
+
     private val _profilePhotoUri = MutableStateFlow<Uri?>(null)
     val profilePhotoUri: StateFlow<Uri?> = _profilePhotoUri.asStateFlow()
 
@@ -47,6 +50,13 @@ class AppViewModel : ViewModel() {
     fun updateUsername(newUsername: String) {
         viewModelScope.launch {
             _username.emit(newUsername)
+        }
+    }
+
+    // Actualizar contraseña
+    fun updatePassword(newPassword: String) {
+        viewModelScope.launch {
+            _password.emit(newPassword)
         }
     }
 

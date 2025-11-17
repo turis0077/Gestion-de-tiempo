@@ -1,10 +1,8 @@
 package com.turis.gestiondetiempo.nav.navControllers
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -14,13 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.turis.gestiondetiempo.account.SettingsScreen
@@ -38,9 +34,11 @@ import com.turis.gestiondetiempo.nav.navBar.topBarFor
 import com.turis.gestiondetiempo.nav.routes.LoggedRoutes
 
 @Composable
-fun LoggedNav(onLogout: () -> Unit = {}) {
+fun LoggedNav(
+    onLogout: () -> Unit = {},
+    appViewModel: AppViewModel
+) {
     val nav = rememberNavController()
-    val appViewModel: AppViewModel = viewModel()
     val backStack by nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry)
 
     // Observar el username y foto del ViewModel
@@ -187,7 +185,8 @@ fun LoggedNav(onLogout: () -> Unit = {}) {
                 composable<LoggedRoutes.Settings> {
                     SettingsScreen(
                         modifier = Modifier.fillMaxSize(),
-                        onLogout = onLogout
+                        onLogout = onLogout,
+                        appViewModel = appViewModel
                     )
                 }
             }

@@ -54,9 +54,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turis.gestiondetiempo.R
+import com.turis.gestiondetiempo.ui.AppViewModel
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
-import com.turis.gestiondetiempo.ui.language.LanguagePreferences
-import com.turis.gestiondetiempo.ui.language.LanguageViewModel
 import com.turis.gestiondetiempo.ui.theme.LocalExtendedColors
 import com.turis.gestiondetiempo.ui.theme.ThemePreferences
 import com.turis.gestiondetiempo.ui.theme.ThemeViewModel
@@ -66,7 +65,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onLogout: () -> Unit = {},
     themeViewModel: ThemeViewModel? = null,
-    languageViewModel: LanguageViewModel? = null
+    appViewModel: AppViewModel? = null
 ) {
     val context = LocalContext.current
 
@@ -82,23 +81,20 @@ fun SettingsScreen(
         }
     }
 
-    // LanguageViewModel
-    val langViewModel = languageViewModel ?: run {
-        val appContext = context.applicationContext
-        if (appContext is android.app.Application) {
-            viewModel<LanguageViewModel>(
-                factory = ViewModelProvider.AndroidViewModelFactory.getInstance(appContext)
-            )
-        } else {
-            null
-        }
-    }
+    var showLanguageMenu by remember { mutableStateOf(false) }
+    var selectedLanguage by remember { mutableStateOf("Español") }
 
-    val currentLanguage by (langViewModel?.currentLanguage ?: remember {
-        kotlinx.coroutines.flow.MutableStateFlow(LanguagePreferences.Language.SPANISH)
+    // Obtener username y password del AppViewModel
+    val username by (appViewModel?.username ?: remember {
+        kotlinx.coroutines.flow.MutableStateFlow("User1259")
     }).collectAsState()
 
-    var showLanguageMenu by remember { mutableStateOf(false) }
+    val password by (appViewModel?.password ?: remember {
+        kotlinx.coroutines.flow.MutableStateFlow("")
+    }).collectAsState()
+
+    // Convertir password a asteriscos
+    val maskedPassword = "*".repeat(password.length)
 
     val themeState by (viewModel?.themeState ?: remember {
         kotlinx.coroutines.flow.MutableStateFlow(
@@ -126,7 +122,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            item { SectionChip(stringResource(R.string.personalization)) }
+            item { SectionChip("Personalización") }
 
             item {
                 Row(
@@ -134,7 +130,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(R.string.theme),
+                        text = "Tema",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -204,7 +200,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.language),
+                        text = "Idioma",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -218,7 +214,7 @@ fun SettingsScreen(
                                     contentColor = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
-                                Text(currentLanguage.displayName)
+                                Text(selectedLanguage)
                             }
                             OutlinedButton(
                                 onClick = { showLanguageMenu = !showLanguageMenu },
@@ -237,11 +233,11 @@ fun SettingsScreen(
                             expanded = showLanguageMenu,
                             onDismissRequest = { showLanguageMenu = false }
                         ) {
-                            LanguagePreferences.Language.entries.forEach { language ->
+                            listOf("Español", "English").forEach { language ->
                                 DropdownMenuItem(
-                                    text = { Text(language.displayName) },
+                                    text = { Text(language) },
                                     onClick = {
-                                        langViewModel?.setLanguage(language)
+                                        selectedLanguage = language
                                         showLanguageMenu = false
                                     }
                                 )
@@ -257,7 +253,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.clock_background),
+                        text = "Fondo de reloj",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -279,45 +275,45 @@ fun SettingsScreen(
                 }
             }
 
-            item { SectionChip(stringResource(R.string.user_data)) }
+            item { SectionChip("Datos de usuario") }
 
             item {
                 LabeledFilledField(
-                    label = stringResource(R.string.username),
-                    value = stringResource(R.string.sample_name),
+                    label = "Nombre de usuario",
+                    value = username,
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = stringResource(R.string.password),
-                    value = stringResource(R.string.sample_password),
+                    label = "Contraseña",
+                    value = if (password.isEmpty()) stringResource(R.string.sample_password) else maskedPassword,
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = stringResource(R.string.birth_date),
+                    label = "Fecha de nacimiento",
                     value = stringResource(R.string.sample_birth_date),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = stringResource(R.string.gmail),
+                    label = "Gmail",
                     value = stringResource(R.string.sample_email),
                     trailing = { EditBadge() }
                 )
             }
             item {
                 LabeledFilledField(
-                    label = stringResource(R.string.facebook),
+                    label = "Facebook",
                     value = stringResource(R.string.sample_facebook),
                     trailing = { EditBadge() }
                 )
             }
 
-            item { SectionChip(stringResource(R.string.other)) }
+            item { SectionChip("Otros") }
 
             item {
                 Row(
@@ -335,7 +331,7 @@ fun SettingsScreen(
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                    ) { Text(stringResource(R.string.logout)) }
+                    ) { Text("Cerrar Sesion") }
 
                     OutlinedButton(
                         onClick = { /* delete */ },
@@ -343,7 +339,7 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(18.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) { Text(stringResource(R.string.delete_account)) }
+                    ) { Text("Borrar Cuenta") }
                 }
             }
 

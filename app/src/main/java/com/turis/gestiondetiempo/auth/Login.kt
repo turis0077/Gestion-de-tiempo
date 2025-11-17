@@ -31,27 +31,36 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turis.gestiondetiempo.R
+import com.turis.gestiondetiempo.ui.AppViewModel
 import com.turis.gestiondetiempo.ui.theme.GestionDeTiempoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onBack: () -> Unit = {},
-    onLogin: () -> Unit = {}
+    onLogin: () -> Unit = {},
+    loginViewModel: LoginViewModel = viewModel(),
+    appViewModel: AppViewModel? = null
 ) {
     val colors = MaterialTheme.colorScheme
+    val loginState by loginViewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -106,20 +115,36 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
+            // Mensaje de error
+            loginState.errorMessage?.let { errorMsg ->
+                Surface(
+                    color = colors.errorContainer,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = errorMsg,
+                        color = colors.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
             // Usuario
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                placeholder = { Text("Nombre de usuario") },
+                value = loginState.username.value,
+                onValueChange = { loginViewModel.onEvent(LoginEvent.UsernameChanged(it)) },
+                placeholder = { Text(loginState.username.placeholder) },
                 singleLine = true,
-                readOnly = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = colors.outline,
                     unfocusedBorderColor = colors.outline.copy(alpha = 0.6f),
                     focusedContainerColor = colors.surface,
-                    unfocusedContainerColor = colors.surface,
-                    disabledPlaceholderColor = colors.onSurface.copy(alpha = 0.5f)
+                    unfocusedContainerColor = colors.surface
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,11 +155,11 @@ fun LoginScreen(
 
             // Contraseña
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                placeholder = { Text("Contraseña") },
+                value = loginState.password.value,
+                onValueChange = { loginViewModel.onEvent(LoginEvent.PasswordChanged(it)) },
+                placeholder = { Text(loginState.password.placeholder) },
                 singleLine = true,
-                readOnly = true,
+                visualTransformation = PasswordVisualTransformation(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = colors.outline,
@@ -151,7 +176,16 @@ fun LoginScreen(
 
             // Botón principal
             Button(
-                onClick = onLogin,
+                onClick = {
+                    loginViewModel.onEvent(LoginEvent.Submit)
+                    // Solo navegar si no hay error
+                    if (!loginViewModel.hasError()) {
+                        // Guardar username y password en AppViewModel
+                        appViewModel?.updateUsername(loginViewModel.getUsernameValue())
+                        appViewModel?.updatePassword(loginViewModel.getPasswordValue())
+                        onLogin()
+                    }
+                },
                 shape = RoundedCornerShape(14.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 colors = ButtonDefaults.buttonColors(

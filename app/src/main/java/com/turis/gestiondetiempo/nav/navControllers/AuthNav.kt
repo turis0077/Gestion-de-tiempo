@@ -1,6 +1,7 @@
 package com.turis.gestiondetiempo.nav.navControllers
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -9,9 +10,13 @@ import com.turis.gestiondetiempo.auth.LoginScreen
 import com.turis.gestiondetiempo.auth.PantallaInicial
 import com.turis.gestiondetiempo.auth.SignInState
 import com.turis.gestiondetiempo.nav.routes.AuthRoutes
+import com.turis.gestiondetiempo.ui.AppViewModel
 
 @Composable
-fun AuthNav(onLoggedIn: () -> Unit) {
+fun AuthNav(
+    onLoggedIn: () -> Unit,
+    appViewModel: AppViewModel
+) {
     val nav = rememberNavController()
 
     NavHost(
@@ -32,7 +37,8 @@ fun AuthNav(onLoggedIn: () -> Unit) {
         composable<AuthRoutes.LogIn> {
             LoginScreen(
                 onBack = { nav.popBackStack() },
-                onLogin = onLoggedIn
+                onLogin = onLoggedIn,
+                appViewModel = appViewModel
             )
         }
 
