@@ -30,8 +30,6 @@ class SignInViewModel : ViewModel() {
 
             SignInEvent.Submit -> simulateSubmit()
             SignInEvent.Reset  -> _state.value = SignInState()
-
-            //Estados de validación ficticios (para mostrar visualización):
             SignInEvent.SimUserExists      -> markUserExists()
             SignInEvent.SimWeakPassword    -> markWeakPassword()
             SignInEvent.SimConfirmMismatch -> markConfirmMismatch()

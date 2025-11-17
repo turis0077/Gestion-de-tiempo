@@ -18,6 +18,12 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/DEPENDENCIES.txt"
+        }
+    }
 
     buildTypes {
         release {
